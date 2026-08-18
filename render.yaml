@@ -5,6 +5,8 @@ services:
     plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
     envVars:
       - key: NODE_VERSION
         value: 24.2.0
