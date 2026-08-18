@@ -1,0 +1,31 @@
+export const iconMap = {
+  overview: "🏠",
+  ai: "🤖",
+  search: "🔎",
+  resources: "📍",
+  audit: "🧾",
+  settings: "⚙️",
+  database: "🗄️",
+  users: "👥",
+  sparkles: "✨",
+  platform: "🖥️",
+  cloud: "☁️",
+  activity: "📈",
+  file: "📄",
+  success: "✅",
+  warning: "⚠️",
+  menu: "☰",
+  chevron: "›",
+  lock: "🔒",
+  map: "🗺️",
+  pin: "📌",
+};
+
+export const navItems = [
+  { id: "overview", label: "Command Center", icon: iconMap.overview },
+  { id: "ai", label: "AI Assistant", icon: iconMap.ai },
+  { id: "search", label: "Central Search", icon: iconMap.search },
+  { id: "resources", label: "Resource Tracking", icon: iconMap.resources },
+  { id: "audit", label: "Audit Logs", icon: iconMap.audit },
+  { id: "settings", label: "Settings", icon: iconMap.settings },
+];
