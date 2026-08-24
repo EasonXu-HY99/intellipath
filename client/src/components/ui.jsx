@@ -1,122 +1,129 @@
-import { iconMap } from "../icons.js";
+import { Loader2, X, AlertTriangle } from "lucide-react";
 
-export function Icon({ symbol, className = "", label }) {
+export function GlassCard({ children, className = "", glow = false }) {
   return (
-    <span
-      className={`inline-flex items-center justify-center ${className}`}
-      role="img"
-      aria-label={label || symbol}
-    >
-      {symbol}
-    </span>
-  );
-}
-
-export function Card({ children, className = "" }) {
-  return (
-    <div className={`bg-white border border-slate-200 rounded-2xl shadow-sm ${className}`}>
+    <div className={`glass rounded-2xl ${glow ? "flow-border" : ""} ${className}`}>
       {children}
     </div>
   );
 }
 
-export function IconBox({ symbol, dark = false }) {
+export function IconBox({ icon: Icon, tone = "neutral", className = "" }) {
+  const tones = {
+    neutral: "bg-white/8 text-slate-200 border-white/10",
+    cyan: "bg-cyan-400/10 text-cyan-300 border-cyan-400/20",
+    violet: "bg-violet-400/10 text-violet-300 border-violet-400/20",
+    emerald: "bg-emerald-400/10 text-emerald-300 border-emerald-400/20",
+    amber: "bg-amber-400/10 text-amber-300 border-amber-400/20",
+    rose: "bg-rose-400/10 text-rose-300 border-rose-400/20",
+  };
   return (
     <div
-      className={`${
-        dark ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-800"
-      } w-11 h-11 rounded-2xl flex items-center justify-center text-xl shrink-0`}
+      className={`w-11 h-11 rounded-xl flex items-center justify-center border shrink-0 ${tones[tone] || tones.neutral} ${className}`}
     >
-      <Icon symbol={symbol} />
+      {Icon ? <Icon className="w-5 h-5" strokeWidth={1.75} /> : null}
     </div>
   );
 }
 
-const STATUS_STYLES = {
-  Active: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Assigned: "bg-blue-50 text-blue-700 border-blue-200",
-  Maintenance: "bg-amber-50 text-amber-700 border-amber-200",
-  Offline: "bg-red-50 text-red-700 border-red-200",
-  Success: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Warning: "bg-amber-50 text-amber-700 border-amber-200",
-  Completed: "bg-blue-50 text-blue-700 border-blue-200",
-  Expiring: "bg-amber-50 text-amber-700 border-amber-200",
-  Approved: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Allowed: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Denied: "bg-red-50 text-red-700 border-red-200",
-  "In Review": "bg-amber-50 text-amber-700 border-amber-200",
-  Pending: "bg-blue-50 text-blue-700 border-blue-200",
-  "Not Requested": "bg-slate-50 text-slate-700 border-slate-200",
-  Escalated: "bg-red-50 text-red-700 border-red-200",
-  "Not Started": "bg-slate-50 text-slate-700 border-slate-200",
-  Passed: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Failed: "bg-red-50 text-red-700 border-red-200",
+const STATUS = {
+  Active: "emerald",
+  Success: "emerald",
+  Completed: "emerald",
+  Approved: "emerald",
+  Allowed: "emerald",
+  Passed: "emerald",
+  Healthy: "emerald",
+  Maintenance: "amber",
+  Warning: "amber",
+  Expiring: "amber",
+  "In Review": "amber",
+  Pending: "amber",
+  "Not Started": "amber",
+  Offline: "rose",
+  Failed: "rose",
+  Escalated: "rose",
+  Denied: "rose",
+  Critical: "rose",
+  Error: "rose",
+  Assigned: "sky",
+  info: "sky",
+  "Not Requested": "slate",
+};
+
+const TONE = {
+  emerald: "bg-emerald-400/10 text-emerald-300 border-emerald-400/20",
+  amber: "bg-amber-400/10 text-amber-300 border-amber-400/20",
+  rose: "bg-rose-400/10 text-rose-300 border-rose-400/20",
+  sky: "bg-sky-400/10 text-sky-300 border-sky-400/20",
+  slate: "bg-white/5 text-slate-300 border-white/10",
 };
 
 export function StatusBadge({ status }) {
+  const tone = STATUS[status] || "slate";
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs border ${
-        STATUS_STYLES[status] || "bg-slate-50 text-slate-700 border-slate-200"
-      }`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs border whitespace-nowrap ${TONE[tone]}`}
     >
       {status}
     </span>
   );
 }
 
-const RISK_STYLES = {
-  Low: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Medium: "bg-amber-50 text-amber-700 border-amber-200",
-  High: "bg-red-50 text-red-700 border-red-200",
-};
+const RISK = { Low: "emerald", Medium: "amber", High: "rose" };
 
 export function RiskBadge({ risk }) {
+  const tone = RISK[risk] || "slate";
   return (
-    <span
-      className={`px-3 py-1 rounded-full text-xs border ${
-        RISK_STYLES[risk] || "bg-slate-50 text-slate-700 border-slate-200"
-      }`}
-    >
+    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs border ${TONE[tone]}`}>
       {risk}
     </span>
   );
 }
 
-export function SectionTitle({ title, subtitle, action }) {
+export function SectionTitle({ title, subtitle, action, icon: Icon }) {
   return (
-    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{title}</h1>
-        <p className="text-slate-500 mt-1 max-w-4xl">{subtitle}</p>
+    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+      <div className="flex items-start gap-4">
+        {Icon && (
+          <div className="w-12 h-12 rounded-2xl glass flex items-center justify-center text-cyan-300 shrink-0 mt-0.5">
+            <Icon className="w-6 h-6" strokeWidth={1.75} />
+          </div>
+        )}
+        <div>
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-white tracking-tight">
+            {title}
+          </h1>
+          <p className="text-slate-400 mt-1 max-w-4xl text-sm">{subtitle}</p>
+        </div>
       </div>
       {action}
     </div>
   );
 }
 
-export function Metric({ icon, title, value, note }) {
+export function Metric({ icon: Icon, title, value, note, tone = "cyan" }) {
   return (
-    <Card className="p-5">
+    <GlassCard className="p-5 flow-border" glow>
       <div className="flex items-center justify-between">
-        <IconBox symbol={icon} />
-        <span className="text-xs text-slate-500">Live</span>
+        <IconBox icon={Icon} tone={tone} />
+        <span className="text-[11px] uppercase tracking-wider text-slate-500">Live</span>
       </div>
-      <div className="mt-5">
-        <p className="text-sm text-slate-500">{title}</p>
-        <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
-        <p className="text-xs text-slate-500 mt-2">{note}</p>
+      <div className="mt-4">
+        <p className="text-sm text-slate-400">{title}</p>
+        <p className="font-display text-3xl font-bold text-white mt-1">{value}</p>
+        <p className="text-xs text-slate-500 mt-1.5">{note}</p>
       </div>
-    </Card>
+    </GlassCard>
   );
 }
 
-export function Spinner() {
+export function Spinner({ label = "Loading…" }) {
   return (
     <div className="flex items-center justify-center py-16 text-slate-400">
       <span className="inline-flex items-center gap-2 text-sm">
-        <span className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-slate-700 animate-spin" />
-        Loading…
+        <Loader2 className="w-4 h-4 animate-spin text-cyan-300" />
+        {label}
       </span>
     </div>
   );
@@ -124,15 +131,15 @@ export function Spinner() {
 
 export function ErrorBox({ error, onRetry }) {
   return (
-    <div className="p-6 rounded-2xl bg-red-50 border border-red-200 text-red-700">
+    <div className="p-5 rounded-2xl bg-rose-400/10 border border-rose-400/20 text-rose-200">
       <p className="font-semibold flex items-center gap-2">
-        <Icon symbol={iconMap.warning} /> Failed to load data
+        <AlertTriangle className="w-4 h-4" /> Failed to load data
       </p>
-      <p className="text-sm mt-1">{String(error?.message || error)}</p>
+      <p className="text-sm mt-1 text-rose-200/80">{String(error?.message || error)}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-3 px-3 py-1.5 rounded-lg bg-red-600 text-white text-sm"
+          className="mt-3 px-3 py-1.5 rounded-lg bg-rose-400/20 text-rose-100 text-sm hover:bg-rose-400/30"
         >
           Retry
         </button>
@@ -141,15 +148,41 @@ export function ErrorBox({ error, onRetry }) {
   );
 }
 
-export function Toast({ message, onDismiss }) {
+export function Toast({ message, kind = "success", onDismiss }) {
   if (!message) return null;
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900 text-white shadow-lg">
-      <Icon symbol={iconMap.success} />
+    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl glass text-white shadow-xl">
+      <span className={`w-2 h-2 rounded-full ${kind === "error" ? "bg-rose-400" : "bg-emerald-400"}`} />
       <span className="text-sm">{message}</span>
-      <button onClick={onDismiss} className="text-slate-400 hover:text-white text-sm">
-        ✕
+      <button onClick={onDismiss} className="text-slate-400 hover:text-white">
+        <X className="w-4 h-4" />
       </button>
     </div>
   );
 }
+
+export function PrimaryButton({ children, onClick, disabled, className = "" }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-4 py-2 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-cyan-500/80 to-violet-500/80 hover:from-cyan-400 hover:to-violet-400 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg shadow-cyan-500/10 ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function GhostButton({ children, onClick, disabled, className = "" }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-4 py-2 rounded-xl text-sm font-medium text-slate-200 glass-soft hover:bg-white/10 disabled:opacity-50 transition ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+export const fieldCls = "field w-full px-3 py-2 rounded-xl text-sm placeholder:text-slate-500";

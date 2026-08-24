@@ -16,7 +16,6 @@ if (DB_PATH !== ":memory:") {
 
 export const db = new DatabaseSync(DB_PATH);
 
-// Enable foreign keys + WAL for better concurrency (WAL is a no-op for :memory:)
 db.exec("PRAGMA journal_mode = WAL;");
 db.exec("PRAGMA foreign_keys = ON;");
 
@@ -90,9 +89,61 @@ CREATE TABLE IF NOT EXISTS level_rules (
   level INTEGER PRIMARY KEY,
   scope TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  email TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  token TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  expires_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS system_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  timestamp TEXT NOT NULL,
+  device_id TEXT,
+  device_name TEXT,
+  source TEXT,
+  event_type TEXT NOT NULL,
+  severity TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 `;
 
 db.exec(SCHEMA);
+
+// ---------------------------------------------------------------------------
+// Lightweight migrations — add columns to pre-existing tables without dropping
+// data. Table/column names are hardcoded (never user input).
+// ---------------------------------------------------------------------------
+function ensureColumn(table, column, ddl) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!cols.some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${ddl}`);
+  }
+}
+
+ensureColumn("resources", "serial_number", "TEXT DEFAULT ''");
+ensureColumn("resources", "manufacturer", "TEXT DEFAULT ''");
+ensureColumn("resources", "model", "TEXT DEFAULT ''");
+ensureColumn("resources", "ip_address", "TEXT DEFAULT ''");
+ensureColumn("resources", "os", "TEXT DEFAULT ''");
+ensureColumn("resources", "last_seen", "TEXT DEFAULT ''");
+ensureColumn("resources", "health", "TEXT DEFAULT 'Healthy'");
+ensureColumn("people", "department", "TEXT DEFAULT ''");
+ensureColumn("people", "email", "TEXT DEFAULT ''");
+ensureColumn("audit_logs", "category", "TEXT DEFAULT 'general'");
+ensureColumn("permission_requests", "created_at", "TEXT DEFAULT (datetime('now'))");
 
 // Seed demo data on first boot (idempotent).
 seedDatabase(db);
@@ -137,10 +188,16 @@ export function listLevelRules(db) {
   return db.prepare("SELECT * FROM level_rules ORDER BY level DESC").all();
 }
 
-export function listAuditLogs(db) {
+export function listAuditLogs(db, limit = 300) {
   return db
-    .prepare("SELECT * FROM audit_logs ORDER BY id DESC LIMIT 200")
-    .all();
+    .prepare("SELECT * FROM audit_logs ORDER BY id DESC LIMIT ?")
+    .all(limit);
+}
+
+export function listSystemLogs(db, limit = 300) {
+  return db
+    .prepare("SELECT * FROM system_logs ORDER BY id DESC LIMIT ?")
+    .all(limit);
 }
 
 export function listRecommendations(db) {
@@ -158,17 +215,27 @@ export function setSetting(db, key, value) {
   ).run(key, value);
 }
 
-export function logAudit(db, { user, action, result }) {
-  const time = new Date().toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+export function formatTimestamp(date = new Date()) {
+  const p = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())} ${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`;
+}
+
+export function logAudit(db, { user, action, result, category = "general" }) {
+  const time = formatTimestamp();
   return db
     .prepare(
-      "INSERT INTO audit_logs (time, user, action, result) VALUES (?, ?, ?, ?)"
+      "INSERT INTO audit_logs (time, user, action, result, category) VALUES (?, ?, ?, ?, ?)"
     )
-    .run(time, user, action, result);
+    .run(time, user, action, result, category);
+}
+
+export function logSystem(db, { deviceId, deviceName, source, eventType, severity, message, timestamp }) {
+  const ts = timestamp || formatTimestamp();
+  return db
+    .prepare(
+      "INSERT INTO system_logs (timestamp, device_id, device_name, source, event_type, severity, message) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    )
+    .run(ts, deviceId, deviceName, source, eventType, severity, message);
 }
 
 export function listPermissionRequests(db) {
@@ -183,4 +250,62 @@ export function listPermissionRequests(db) {
       )
       .all(req.id),
   }));
+}
+
+// ---------------------------------------------------------------------------
+// Users & sessions
+// ---------------------------------------------------------------------------
+
+export function getUserByUsername(db, username) {
+  return db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+}
+
+export function getUserById(db, id) {
+  return db.prepare("SELECT * FROM users WHERE id = ?").get(id);
+}
+
+export function listUsers(db) {
+  return db
+    .prepare("SELECT id, username, name, role, email, created_at FROM users ORDER BY id")
+    .all();
+}
+
+export function createUser(db, { username, passwordHash, name, role, email }) {
+  const info = db
+    .prepare(
+      "INSERT INTO users (username, password_hash, name, role, email) VALUES (?, ?, ?, ?, ?)"
+    )
+    .run(username, passwordHash, name, role, email || null);
+  return getUserById(db, Number(info.lastInsertRowid));
+}
+
+export function updateUserPassword(db, userId, passwordHash) {
+  db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(
+    passwordHash,
+    userId
+  );
+}
+
+export function deleteUser(db, userId) {
+  return db.prepare("DELETE FROM users WHERE id = ?").run(userId);
+}
+
+export function createSession(db, userId, token, expiresAt) {
+  db.prepare(
+    "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)"
+  ).run(token, userId, expiresAt);
+}
+
+export function getSessionUser(db, token) {
+  return db
+    .prepare(
+      `SELECT u.id, u.username, u.name, u.role, u.email, s.token AS session_token
+       FROM sessions s JOIN users u ON u.id = s.user_id
+       WHERE s.token = ? AND s.expires_at > ?`
+    )
+    .get(token, new Date().toISOString());
+}
+
+export function deleteSession(db, token) {
+  return db.prepare("DELETE FROM sessions WHERE token = ?").run(token);
 }
