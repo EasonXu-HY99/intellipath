@@ -52,7 +52,7 @@ export default function AIAssistant() {
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const [selectedSite, setSelectedSite] = useState(SITES[2]);
-  const bottomRef = useRef(null);
+  const listRef = useRef(null);
 
   useEffect(() => {
     try {
@@ -63,7 +63,8 @@ export default function AIAssistant() {
   }, [messages]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = listRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages, typing]);
 
   async function ask(text) {
@@ -128,7 +129,7 @@ export default function AIAssistant() {
             </button>
           </div>
 
-          <div className="flex-1 p-5 space-y-4 overflow-y-auto" style={{ minHeight: 420, maxHeight: 560 }}>
+          <div ref={listRef} className="flex-1 p-5 space-y-4 overflow-y-auto" style={{ minHeight: 420, maxHeight: 560 }}>
             {messages.map((m, i) => {
               const isUser = m.role === "user";
               return (
@@ -201,7 +202,6 @@ export default function AIAssistant() {
                 </div>
               </div>
             )}
-            <div ref={bottomRef} />
           </div>
 
           {messages.length <= 1 && (
