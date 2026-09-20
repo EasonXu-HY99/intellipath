@@ -1,95 +1,173 @@
 import { useEffect, useState } from "react";
-import { Settings, Bot, ShieldCheck, Save } from "lucide-react";
+import { Settings, Save } from "lucide-react";
 import { api } from "../api.js";
-import { GlassCard, SectionTitle, Spinner, ErrorBox, Toast, PrimaryButton } from "../components/ui.jsx";
-
-function ToggleRow({ name, enabled, onChange }) {
-  return (
-    <label className="flex items-center justify-between p-4 rounded-xl glass-soft cursor-pointer">
-      <span className="text-sm text-slate-200">{name}</span>
-      <button
-        type="button"
-        onClick={onChange}
-        className={`relative w-11 h-6 rounded-full transition ${enabled ? "bg-gradient-to-r from-cyan-500 to-violet-500" : "bg-white/10"}`}
-      >
-        <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${enabled ? "left-[22px]" : "left-0.5"}`} />
-      </button>
-    </label>
-  );
-}
+import {
+  GlassCard,
+  SectionTitle,
+  Spinner,
+  ErrorBox,
+  PrimaryButton,
+  fieldCls,
+} from "../components/ui.jsx";
 
 export default function SettingsPage() {
-  const [engines, setEngines] = useState(null);
-  const [governance, setGovernance] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState(null);
-
+  const [form, setForm] = useState(null),
+    [ai, setAI] = useState(null),
+    [error, setError] = useState(null),
+    [busy, setBusy] = useState(false),
+    [message, setMessage] = useState("");
   useEffect(() => {
     api
       .getSettings()
-      .then((d) => { setEngines(d.engines); setGovernance(d.governance); })
-      .catch(setError)
-      .finally(() => setLoading(false));
+      .then((d) => {
+        setForm(d.settings);
+        setAI(d.ai);
+      })
+      .catch(setError);
   }, []);
-
-  function toggle(list, setList, index) {
-    setList(list.map((item, i) => (i === index ? { ...item, enabled: !item.enabled } : item)));
-  }
-
+  const change = (key, value) => {
+    setForm((f) => ({ ...f, [key]: value }));
+    setMessage("Unsaved changes");
+  };
   async function save() {
-    setSaving(true);
+    setBusy(true);
+    setError(null);
     try {
-      const d = await api.updateSettings({ engines, governance });
-      setEngines(d.engines);
-      setGovernance(d.governance);
-      setToast("Settings saved.");
-      setTimeout(() => setToast(null), 3000);
+      const d = await api.updateSettings(form);
+      setForm(d.settings);
+      setAI(d.ai);
+      setMessage(
+        "Saved. Report, search, AI and alert preferences take effect on the next request; session duration applies at the next sign-in.",
+      );
     } catch (e) {
       setError(e);
     } finally {
-      setSaving(false);
+      setBusy(false);
     }
   }
-
-  if (loading) return <Spinner />;
-  if (error) return <ErrorBox error={error} />;
-
+  if (!form) return error ? <ErrorBox error={error} /> : <Spinner />;
   return (
     <div>
       <SectionTitle
         title="Settings"
-        subtitle="Configure AI behaviour, enterprise integrations, notifications, and operational preferences."
+        subtitle="Operational controls with a direct effect on reports, search, security and AI."
         icon={Settings}
-        action={<PrimaryButton onClick={save} disabled={saving}><span className="inline-flex items-center gap-2"><Save className="w-4 h-4" /> {saving ? "Saving…" : "Save Changes"}</span></PrimaryButton>}
+        action={
+          <PrimaryButton onClick={save} disabled={busy}>
+            <span className="inline-flex items-center gap-2">
+              <Save size={15} />
+              {busy ? "Saving…" : "Save changes"}
+            </span>
+          </PrimaryButton>
+        }
       />
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+      {error && <ErrorBox error={error} />}
+      {message && (
+        <p role="status" className="text-sm text-cyan-300 mb-5">
+          {message}
+        </p>
+      )}
+      <div className="grid lg:grid-cols-2 gap-5">
         <GlassCard className="p-6">
-          <h2 className="font-display font-semibold text-white flex items-center gap-2 mb-4">
-            <Bot className="w-5 h-5 text-cyan-300" /> AI Engine
-          </h2>
-          <div className="space-y-2.5">
-            {engines.map((engine, index) => (
-              <ToggleRow key={engine.name} name={engine.name} enabled={engine.enabled} onChange={() => toggle(engines, setEngines, index)} />
-            ))}
-          </div>
+          <h2 className="text-lg font-semibold mb-4">AI assistant</h2>
+          <label className="setting-field">
+            Answer mode
+            <select
+              className={fieldCls}
+              value={form.aiMode}
+              onChange={(e) => change("aiMode", e.target.value)}
+            >
+              <option value="auto">
+                OpenAI when configured, local fallback
+              </option>
+              <option value="local">Local retrieval only</option>
+            </select>
+          </label>
+          <p className="text-sm text-slate-400 mt-3">
+            {ai.configured
+              ? `OpenAI configured · ${ai.model}`
+              : "OpenAI key not configured. Local retrieval remains available."}
+          </p>
+          <p className="text-xs text-slate-400 mt-3">
+            OpenAI receives only authorized evidence. Credentials are managed in
+            server environment variables, never in this browser.
+          </p>
         </GlassCard>
-
         <GlassCard className="p-6">
-          <h2 className="font-display font-semibold text-white flex items-center gap-2 mb-4">
-            <ShieldCheck className="w-5 h-5 text-emerald-300" /> Governance Controls
-          </h2>
-          <div className="space-y-2.5">
-            {governance.map((control, index) => (
-              <ToggleRow key={control.name} name={control.name} enabled={control.enabled} onChange={() => toggle(governance, setGovernance, index)} />
-            ))}
-          </div>
+          <h2 className="text-lg font-semibold mb-4">PDF report contents</h2>
+          {[
+            ["reportAppendix", "Include full inventory and knowledge appendix"],
+            ["reportLogs", "Include daily system and audit evidence"],
+          ].map(([k, label]) => (
+            <label className="flex items-start gap-3 mb-4 text-sm" key={k}>
+              <input
+                type="checkbox"
+                checked={form[k]}
+                onChange={(e) => change(k, e.target.checked)}
+                className="mt-1 accent-cyan-500"
+              />
+              {label}
+            </label>
+          ))}
+          <p className="text-xs text-slate-400">
+            Incidents, alerts and remediation are always included within your
+            clearance. Reporting days use Singapore time; evidence timestamps
+            retain their recorded offsets.
+          </p>
+        </GlassCard>
+        <GlassCard className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Search and alerts</h2>
+          <label className="setting-field">
+            Default search page size
+            <select
+              className={fieldCls}
+              value={form.searchPageSize}
+              onChange={(e) => change("searchPageSize", Number(e.target.value))}
+            >
+              {[10, 20, 50].map((n) => (
+                <option key={n} value={n}>
+                  {n} records
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="setting-field mt-4">
+            Minimum dashboard alert severity
+            <select
+              className={fieldCls}
+              value={form.alertSeverity}
+              onChange={(e) => change("alertSeverity", e.target.value)}
+            >
+              {["info", "warning", "high", "critical"].map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+          <p className="text-xs text-slate-400 mt-3">
+            Changes dashboard alert counts and recommendations. Full reports
+            retain every alert severity.
+          </p>
+        </GlassCard>
+        <GlassCard className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Session security</h2>
+          <label className="setting-field">
+            New session lifetime (hours)
+            <input
+              type="number"
+              min={1}
+              max={168}
+              className={fieldCls}
+              value={form.sessionHours}
+              onChange={(e) => change("sessionHours", Number(e.target.value))}
+            />
+          </label>
+          <p className="text-xs text-slate-400 mt-3">
+            1–168 hours. Existing sessions keep their expiry. Changing an
+            account clearance revokes its sessions immediately. Classification
+            enforcement and audit recording are always enabled.
+          </p>
         </GlassCard>
       </div>
-
-      <Toast message={toast} onDismiss={() => setToast(null)} />
     </div>
   );
 }

@@ -65,6 +65,7 @@ export function publicUser(user) {
     role: user.role,
     roleLabel: ROLES[user.role]?.label || user.role,
     email: user.email,
+    cyber_level: user.cyber_level,
     permissions: rolePermissions(user.role),
   };
 }
@@ -78,7 +79,8 @@ export function requireAuth(req, res, next) {
   const token = extractToken(req);
   if (!token) return res.status(401).json({ error: "Authentication required" });
   const user = getSessionUser(db, token);
-  if (!user) return res.status(401).json({ error: "Session expired or invalid" });
+  if (!user)
+    return res.status(401).json({ error: "Session expired or invalid" });
   req.user = user;
   req.token = token;
   next();
@@ -86,7 +88,8 @@ export function requireAuth(req, res, next) {
 
 export function requirePermission(perm) {
   return (req, res, next) => {
-    if (!req.user) return res.status(401).json({ error: "Authentication required" });
+    if (!req.user)
+      return res.status(401).json({ error: "Authentication required" });
     if (!userHasPermission(req.user.role, perm)) {
       return res.status(403).json({ error: "Insufficient permissions" });
     }

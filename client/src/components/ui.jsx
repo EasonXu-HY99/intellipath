@@ -107,7 +107,7 @@ export function Metric({ icon: Icon, title, value, note, tone = "cyan" }) {
     <GlassCard className="p-5 flow-border" glow>
       <div className="flex items-center justify-between">
         <IconBox icon={Icon} tone={tone} />
-        <span className="text-[11px] uppercase tracking-wider text-slate-500">Live</span>
+        <span className="text-[11px] uppercase tracking-wider text-slate-400">Snapshot</span>
       </div>
       <div className="mt-4">
         <p className="text-sm text-slate-400">{title}</p>

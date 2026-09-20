@@ -1,4 +1,6 @@
-# IntelliPath — Smart Operations Platform
+# IntelliPath — Smart Operations Platform v2
+
+Operational security workspace with enforced L1-L7 record classification, grounded OpenAI assistance, cybersecurity PDF reports, and a searchable multi-site demo dataset. See [the v2 operations guide](docs/OPERATIONS-V2.md) for configuration, migration and validation.
 
 A full-stack operational intelligence dashboard for tracking enterprise
 devices, personnel, cybersecurity access levels, permission request
@@ -16,13 +18,15 @@ now a complete application with a real database, REST API, and authentication.
   permissions and a different UI (navigation + actions are filtered by role)
 - **User management** — create/remove accounts, change password (admin only)
 - **Command Center** — live metrics, operational flow, AI recommendations, system health
-- **AI Assistant** — natural-language Q&A over live data (rule-based engine, LLM-ready)
-- **Central Search** — search people and devices across the whole directory
+- **AI Assistant** — OpenAI Responses API over authorized evidence, session-owned conversation context, source references and explicit local fallback
+- **Central Search** — ranked, paginated search across people, devices, documents, maintenance, incidents, alerts, remediation, locations, requests and logs; document downloads and record details
+- **Daily cybersecurity PDF** — Singapore reporting day, unresolved carry-over, severity highlights, remediation ownership/deadlines, evidence and authorized inventory appendix
+- **Singapore site directory** — five officially published sites, exact-address Google Maps selection and links; headquarters shares the Tuas Boulevard location
 - **Resource Tracking** — device registry (make/model/serial/IP/OS/health),
   cybersecurity level rule (L1–L7), access result per user, permission request
   flow, new device / new request forms
 - **Logs & Audit** — audit trail + system/device event logs; CSV export
-- **Settings** — AI engine + governance toggles persisted to the database
+- **Settings** — functional AI mode, report contents, alert threshold, search page size and new-session lifetime controls
 - **Glassmorphism UI** — dark glass surfaces, aurora "flowing light" background,
   lucide icons, custom fonts (no emoji)
 
@@ -50,7 +54,7 @@ now a complete application with a real database, REST API, and authentication.
 ## Project layout
 
 ```
-server/          Express API + SQLite schema/seed + RBAC + rule-based AI engine
+server/          Express API + SQLite schema/seed + RBAC/classification + grounded AI + PDF
 client/          Vite + React + Tailwind frontend (glass theme)
 prototype/       original single-file JSX prototype (kept for reference)
 data/            SQLite database file (git-ignored, auto-created)
@@ -62,6 +66,7 @@ render.yaml      Render blueprint for one-click deployment
 ```bash
 npm install
 npm run dev          # starts API on :8080 + Vite dev server on :5173 (proxies /api)
+npm test             # isolated in-memory API and authorization regression tests
 ```
 
 Open http://localhost:5173.
@@ -93,16 +98,22 @@ npm start            # serves API + static frontend on :8080
 | GET    | `/api/audit-logs`             | audit trail                              | audit.read |
 | GET    | `/api/system-logs`            | device/system events                     | audit.read |
 | GET    | `/api/ai/recommendations`     | AI recommendations                       | ✓    |
-| POST   | `/api/ai/ask`                 | rule-based Q&A `{ prompt }`              | ai     |
-| GET    | `/api/search?q=`              | unified people + device search           | search |
-| GET/PUT | `/api/settings`             | engines + governance toggles             | settings |
+| POST   | `/api/ai/ask`                 | grounded Q&A `{ prompt, conversationId? }` | ai |
+| GET    | `/api/search?q=&kind=&site=&page=` | classified multi-type search | search |
+| GET    | `/api/records/:id`            | authorized record detail | search |
+| GET    | `/api/documents/:id/download` | downloadable demo Markdown | search |
+| GET    | `/api/sites`                  | official Singapore site directory | authenticated |
+| GET    | `/api/reports/daily.pdf?date=YYYY-MM-DD` | cybersecurity PDF | overview |
+| PUT    | `/api/users/:id/clearance`    | change clearance; revoke target sessions | users |
+| GET/PUT | `/api/settings`             | validated operational preferences | settings |
 
 ## Database
 
 SQLite is provided by Node 24's built-in `node:sqlite` module — zero external
 services and zero native build steps. The database is created automatically at
-`data/intellipath.db` and seeded with realistic demo data (35 devices, 16
-people, audit + system logs, 4 accounts) on first boot.
+`data/intellipath.db` and seeded with demo data (140 devices, 76
+people, 525 knowledge/security records, audit + system logs, 4 accounts) on first boot.
+New synthetic records use DEMO IDs and example.invalid addresses. They are not actual Seatrium incident, employee or telemetry records.
 
 Reset demo data at any time:
 

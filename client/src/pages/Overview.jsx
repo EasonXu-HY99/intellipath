@@ -1,167 +1,213 @@
 import { useState } from "react";
-import { Users, MonitorSmartphone, Bot, Activity, Cloud, Database, Sparkles, ChevronRight, X } from "lucide-react";
-import { api } from "../api.js";
+import {
+  Activity,
+  Database,
+  Users,
+  ShieldAlert,
+  Bell,
+  Download,
+  RefreshCw,
+} from "lucide-react";
+import { api, download } from "../api.js";
 import { useApi } from "../hooks.js";
 import {
   GlassCard,
-  IconBox,
-  Metric,
   SectionTitle,
+  Metric,
   Spinner,
   ErrorBox,
-  StatusBadge,
   PrimaryButton,
+  fieldCls,
 } from "../components/ui.jsx";
 
-const FLOW = [
-  { label: "Users", icon: Users },
-  { label: "Platform", icon: MonitorSmartphone },
-  { label: "AI Layer", icon: Bot },
-  { label: "Operations", icon: Activity },
-  { label: "Systems", icon: Cloud },
-];
-
-const SEVERITY = {
-  warning: { box: "bg-amber-400/10 border-amber-400/20", title: "text-amber-200", sub: "text-amber-300/70" },
-  danger: { box: "bg-rose-400/10 border-rose-400/20", title: "text-rose-200", sub: "text-rose-300/70" },
-  info: { box: "bg-sky-400/10 border-sky-400/20", title: "text-sky-200", sub: "text-sky-300/70" },
-};
-
 export default function Overview() {
-  const metrics = useApi(api.getMetrics);
-  const recs = useApi(api.getRecommendations);
-  const [report, setReport] = useState(null);
-  const [reporting, setReporting] = useState(false);
-
-  async function generateReport() {
-    setReporting(true);
-    setReport(null);
+  const { data, loading, error, reload } = useApi(api.getMetrics);
+  const [busy, setBusy] = useState(false),
+    [message, setMessage] = useState("");
+  const [date, setDate] = useState(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Singapore",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date()),
+  );
+  async function report() {
+    setBusy(true);
+    setMessage("");
     try {
-      const r = await api.askAI("Generate daily operations report");
-      setReport(r.reply);
+      await download(
+        `/reports/daily.pdf?date=${date}`,
+        `IntelliPath-Cybersecurity-${date}.pdf`,
+      );
+      setMessage(
+        "PDF downloaded. Includes daily activity, unresolved carry-over and your authorized inventory.",
+      );
     } catch (e) {
-      setReport(`Could not generate report: ${e.message}`);
+      setMessage(e.message);
     } finally {
-      setReporting(false);
+      setBusy(false);
     }
   }
-
-  const checks = [
-    { name: "API connected", result: metrics.data ? "Passed" : "Failed" },
-    { name: "Device registry loaded", result: metrics.data?.resources?.tracked >= 20 ? "Passed" : "Failed" },
-    { name: "AI recommendations available", result: recs.data?.recommendations?.length >= 1 ? "Passed" : "Failed" },
-    { name: "Cybersecurity level rule active", result: metrics.data?.resources?.highestLevel === 7 ? "Passed" : "Failed" },
-    { name: "Audit trail enabled", result: "Passed" },
-    { name: "RBAC enforced", result: "Passed" },
-  ];
-
-  const m = metrics.data?.headline;
-  const rc = metrics.data?.resources;
-
+  const m = data?.headline,
+    s = data?.security;
   return (
     <div>
       <SectionTitle
         title="Command Center"
-        subtitle="Centralized operational visibility, AI assistance, resource tracking, audit visibility, and enterprise search."
+        subtitle="Your security operations brief: exposure, incidents and the work required to recover."
         icon={Activity}
-        action={<PrimaryButton onClick={generateReport} disabled={reporting}>{reporting ? "Generating…" : "Generate Daily Report"}</PrimaryButton>}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <input
+              aria-label="Report date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className={`${fieldCls} !w-auto`}
+            />
+            <PrimaryButton disabled={busy || !date} onClick={report}>
+              <span className="inline-flex gap-2 items-center">
+                <Download size={16} />
+                {busy ? "Generating PDF…" : "Generate Daily Report"}
+              </span>
+            </PrimaryButton>
+          </div>
+        }
       />
-
-      {report && (
-        <GlassCard className="p-6 mb-6" glow>
-          <div className="flex items-start gap-3">
-            <IconBox icon={Sparkles} tone="violet" />
-            <div className="flex-1">
-              <h2 className="font-display font-semibold text-white mb-2">Daily Report</h2>
-              <p className="text-sm text-slate-300 whitespace-pre-line">{report}</p>
-            </div>
-            <button onClick={() => setReport(null)} className="text-slate-500 hover:text-white">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </GlassCard>
+      <div className="scope-banner">
+        <span>DEMO WORKSPACE · SINGAPORE</span>
+        <span>
+          Server-enforced visibility: L1–L{s?.level ?? "…"} · Snapshot{" "}
+          {data?.generatedAt
+            ? new Date(data.generatedAt).toLocaleTimeString()
+            : ""}
+        </span>
+        <button onClick={reload} aria-label="Refresh command center">
+          <RefreshCw size={15} />
+        </button>
+      </div>
+      {message && (
+        <p role="status" className="text-sm p-4 my-4 glass-soft rounded-xl">
+          {message}
+        </p>
       )}
-
-      {metrics.loading ? (
+      {loading ? (
         <Spinner />
-      ) : metrics.error ? (
-        <ErrorBox error={metrics.error} onRetry={metrics.reload} />
+      ) : error ? (
+        <ErrorBox error={error} onRetry={reload} />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          <Metric icon={Database} title="Active Resources" value={m?.activeResources} note={m?.activeResourcesNote} tone="cyan" />
-          <Metric icon={Users} title="Personnel On Site" value={m?.personnelOnSite} note={m?.personnelOnSiteNote} tone="emerald" />
-          <Metric icon={Activity} title="Daily Operations" value={m?.dailyOperations} note={m?.dailyOperationsNote} tone="violet" />
-          <Metric icon={Sparkles} title="AI Insights" value={m?.aiInsights} note={m?.aiInsightsNote} tone="amber" />
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-6">
-        <GlassCard className="p-6 xl:col-span-2">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="font-display font-semibold text-white">Operational Flow</h2>
-              <p className="text-sm text-slate-500">Users → Platform → AI Intelligence → Operations → Enterprise systems</p>
-            </div>
-            <Sparkles className="w-5 h-5 text-cyan-300" />
+        <>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <Metric
+              icon={Database}
+              title="Active resources"
+              value={m.activeResources}
+              note={m.activeResourcesNote}
+            />
+            <Metric
+              icon={Users}
+              title="Active personnel"
+              value={m.personnelOnSite}
+              note={m.personnelOnSiteNote}
+              tone="emerald"
+            />
+            <Metric
+              icon={ShieldAlert}
+              title="Open incidents"
+              value={m.dailyOperations}
+              note={m.dailyOperationsNote}
+              tone="violet"
+            />
+            <Metric
+              icon={Bell}
+              title="Priority alerts"
+              value={m.aiInsights}
+              note={m.aiInsightsNote}
+              tone="amber"
+            />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-stretch">
-            {FLOW.map(({ label, icon: Icon }, idx) => (
-              <div key={label} className="relative">
-                <div className="h-full rounded-2xl glass-soft p-4 flex flex-col items-center justify-center text-center min-h-[130px]">
-                  <Icon className="w-6 h-6 text-cyan-300 mb-3" strokeWidth={1.75} />
-                  <p className="font-medium text-white text-sm">{label}</p>
-                </div>
-                {idx < FLOW.length - 1 && (
-                  <div className="hidden md:flex absolute top-1/2 -right-5 -translate-y-1/2 w-7 h-7 rounded-full glass items-center justify-center text-slate-400 z-10">
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
+          <div className="grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-5">
+            <GlassCard className="p-5">
+              <h2 className="font-display text-lg font-semibold">
+                Incident watchlist
+              </h2>
+              <p className="text-xs text-slate-400 mt-1 mb-4">
+                Highest severity first · simulated events
+              </p>
+              <div className="space-y-3 max-h-[540px] overflow-y-auto">
+                {[...s.incidents]
+                  .sort(
+                    (a, b) =>
+                      (b.severity === "critical") - (a.severity === "critical"),
+                  )
+                  .slice(0, 12)
+                  .map((r) => (
+                    <div
+                      key={r.id}
+                      className="p-4 rounded-xl bg-rose-400/5 border border-rose-400/15"
+                    >
+                      <div className="flex flex-wrap justify-between gap-2">
+                        <span className="severity-tag">{r.severity}</span>
+                        <span className="text-xs text-slate-400">
+                          {r.id} · L{r.required_level}
+                        </span>
+                      </div>
+                      <h3 className="font-medium mt-2">{r.title}</h3>
+                      <p className="text-xs text-slate-400 mt-2">
+                        {r.owner} · {r.status}
+                      </p>
+                    </div>
+                  ))}
+                {!s.incidents.length && (
+                  <p className="text-slate-400">No visible open incidents.</p>
                 )}
               </div>
-            ))}
+            </GlassCard>
+            <div className="space-y-5">
+              <GlassCard className="p-5">
+                <h2 className="font-display text-lg font-semibold">
+                  Remediation queue
+                </h2>
+                <p className="text-xs text-slate-400 mt-1 mb-4">
+                  Unverified actions, earliest due first
+                </p>
+                <div className="space-y-3">
+                  {s.remediation
+                    .filter((r) => r.status !== "verified")
+                    .sort((a, b) => a.due_at.localeCompare(b.due_at))
+                    .slice(0, 6)
+                    .map((r) => (
+                      <div key={r.id} className="border-b border-white/10 pb-3">
+                        <p className="text-sm">{r.title}</p>
+                        <p className="text-xs text-slate-400 mt-1">
+                          {r.owner} · Due {r.due_at.slice(0, 10)}
+                        </p>
+                        <span className="text-xs text-amber-300">
+                          {new Date(r.due_at) < new Date() ? "Overdue · " : ""}
+                          {r.status}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </GlassCard>
+              <GlassCard className="p-5">
+                <h2 className="font-semibold mb-2">Cybersecurity daily PDF</h2>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Executive overview, Govern, Identify, Protect, Detect, Respond
+                  and Recover. Includes incidents, alerts, remediation owners,
+                  deadlines, evidence, inventory and knowledge records.
+                </p>
+                <p className="text-xs text-slate-400 mt-3">
+                  Singapore reporting day. Open carry-over is included;
+                  historical inventory is not reconstructed. Appendix options
+                  are controlled in Settings.
+                </p>
+              </GlassCard>
+            </div>
           </div>
-        </GlassCard>
-
-        <GlassCard className="p-6">
-          <h2 className="font-display font-semibold text-white mb-4">AI Recommendations</h2>
-          {recs.loading ? (
-            <Spinner />
-          ) : recs.error ? (
-            <ErrorBox error={recs.error} onRetry={recs.reload} />
-          ) : (
-            <div className="space-y-3">
-              {(recs.data?.recommendations || []).map((r) => {
-                const s = SEVERITY[r.severity] || SEVERITY.info;
-                return (
-                  <div key={r.id} className={`p-4 rounded-2xl border ${s.box}`}>
-                    <p className={`text-sm font-medium ${s.title}`}>{r.title}</p>
-                    <p className={`text-xs mt-1 ${s.sub}`}>{r.detail}</p>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </GlassCard>
-      </div>
-
-      <GlassCard className="p-6 mt-6">
-        <h2 className="font-display font-semibold text-white mb-4">System Health</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {checks.map((test) => (
-            <div key={test.name} className="p-4 rounded-2xl glass-soft">
-              <p className="text-sm font-medium text-white">{test.name}</p>
-              <div className="mt-3">
-                <StatusBadge status={test.result} />
-              </div>
-            </div>
-          ))}
-        </div>
-        {rc && (
-          <p className="text-xs text-slate-500 mt-4">
-            Live registry: {rc.tracked} tracked devices · {rc.pendingReviews} pending review(s) · highest level {rc.highestLevel}.
-          </p>
-        )}
-      </GlassCard>
+        </>
+      )}
     </div>
   );
 }
