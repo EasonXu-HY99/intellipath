@@ -1,3 +1,4 @@
+import MaritimeScene from "../components/MaritimeScene.jsx";
 import { useState } from "react";
 import {
   Activity,
@@ -75,6 +76,26 @@ export default function Overview() {
           </div>
         }
       />
+      <section className="operations-hero">
+        <div className="hero-copy">
+          <p className="eyebrow">SEATRIUM / CONNECTED OPERATIONS</p>
+          <h2>
+            People at the heart.
+            <br />
+            Engineering on the horizon.
+          </h2>
+          <p>
+            A shared view of your people, assets and security priorities across
+            Singapore's yards.
+          </p>
+          <div className="hero-tags">
+            <span>MARINE &amp; OFFSHORE</span>
+            <span>ENGINEERING</span>
+            <span>PEOPLE &amp; SAFETY</span>
+          </div>
+        </div>
+        <MaritimeScene className="hero-scene" />
+      </section>
       <div className="scope-banner">
         <span>DEMO WORKSPACE · SINGAPORE</span>
         <span>
@@ -132,7 +153,7 @@ export default function Overview() {
               <h2 className="font-display text-lg font-semibold">
                 Incident watchlist
               </h2>
-              <p className="text-xs text-slate-400 mt-1 mb-4">
+              <p className="text-xs text-slate-600 mt-1 mb-4">
                 Highest severity first · simulated events
               </p>
               <div className="space-y-3 max-h-[540px] overflow-y-auto">
@@ -149,18 +170,18 @@ export default function Overview() {
                     >
                       <div className="flex flex-wrap justify-between gap-2">
                         <span className="severity-tag">{r.severity}</span>
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-slate-600">
                           {r.id} · L{r.required_level}
                         </span>
                       </div>
                       <h3 className="font-medium mt-2">{r.title}</h3>
-                      <p className="text-xs text-slate-400 mt-2">
+                      <p className="text-xs text-slate-600 mt-2">
                         {r.owner} · {r.status}
                       </p>
                     </div>
                   ))}
                 {!s.incidents.length && (
-                  <p className="text-slate-400">No visible open incidents.</p>
+                  <p className="text-slate-600">No visible open incidents.</p>
                 )}
               </div>
             </GlassCard>
@@ -169,7 +190,7 @@ export default function Overview() {
                 <h2 className="font-display text-lg font-semibold">
                   Remediation queue
                 </h2>
-                <p className="text-xs text-slate-400 mt-1 mb-4">
+                <p className="text-xs text-slate-600 mt-1 mb-4">
                   Unverified actions, earliest due first
                 </p>
                 <div className="space-y-3">
@@ -178,12 +199,15 @@ export default function Overview() {
                     .sort((a, b) => a.due_at.localeCompare(b.due_at))
                     .slice(0, 6)
                     .map((r) => (
-                      <div key={r.id} className="border-b border-white/10 pb-3">
+                      <div
+                        key={r.id}
+                        className="border-b border-slate-200 pb-3"
+                      >
                         <p className="text-sm">{r.title}</p>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-600 mt-1">
                           {r.owner} · Due {r.due_at.slice(0, 10)}
                         </p>
-                        <span className="text-xs text-amber-300">
+                        <span className="text-xs text-amber-800">
                           {new Date(r.due_at) < new Date() ? "Overdue · " : ""}
                           {r.status}
                         </span>
@@ -193,12 +217,12 @@ export default function Overview() {
               </GlassCard>
               <GlassCard className="p-5">
                 <h2 className="font-semibold mb-2">Cybersecurity daily PDF</h2>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <p className="text-sm text-slate-600 leading-relaxed">
                   Executive overview, Govern, Identify, Protect, Detect, Respond
                   and Recover. Includes incidents, alerts, remediation owners,
                   deadlines, evidence, inventory and knowledge records.
                 </p>
-                <p className="text-xs text-slate-400 mt-3">
+                <p className="text-xs text-slate-600 mt-3">
                   Singapore reporting day. Open carry-over is included;
                   historical inventory is not reconstructed. Appendix options
                   are controlled in Settings.

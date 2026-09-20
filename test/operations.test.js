@@ -1,7 +1,7 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 process.env.DB_PATH = ":memory:";
-delete process.env.OPENAI_API_KEY;
+delete process.env.GROQ_API_KEY;
 const { app } = await import("../server/index.js");
 const { db } = await import("../server/db.js");
 const { snapshot, catalog, settings, saveSettings, searchRecords } =
@@ -38,16 +38,34 @@ before(async () => {
 });
 after(() => server.close());
 
-test('reports exclude incidents created after the selected reporting day', () => {
-  const r=buildReport(snapshot(db,admin.user),settings(db),admin.user,'2000-01-01');
-  assert.equal(r.incidents.length,0);assert.equal(r.alerts.length,0);assert.equal(r.remediation.length,0);
+test("reports exclude incidents created after the selected reporting day", () => {
+  const r = buildReport(
+    snapshot(db, admin.user),
+    settings(db),
+    admin.user,
+    "2000-01-01",
+  );
+  assert.equal(r.incidents.length, 0);
+  assert.equal(r.alerts.length, 0);
+  assert.equal(r.remediation.length, 0);
 });
 
-test('assistant honors site and severity filters and calculates person access', async () => {
-  const r=await answer(db,admin.user,{prompt:'Show high severity alerts in Pioneer Yard'},'filter-test');
-  assert.ok(r.sources.length>0);assert.ok(r.sources.every(s=>s.title.includes('Pioneer Yard')));
-  const check=await answer(db,admin.user,{prompt:'Can John Tan access Server-SG01?'},'access-test');
-  assert.match(check.reply,/denied by classification/);
+test("assistant honors site and severity filters and calculates person access", async () => {
+  const r = await answer(
+    db,
+    admin.user,
+    { prompt: "Show high severity alerts in Pioneer Yard" },
+    "filter-test",
+  );
+  assert.ok(r.sources.length > 0);
+  assert.ok(r.sources.every((s) => s.title.includes("Pioneer Yard")));
+  const check = await answer(
+    db,
+    admin.user,
+    { prompt: "Can John Tan access Server-SG01?" },
+    "access-test",
+  );
+  assert.match(check.reply, /denied by classification/);
 });
 test("authentication is required for protected routes", async () => {
   assert.equal((await call("/search")).status, 401);
@@ -238,24 +256,26 @@ test("clearance changes revoke sessions and cannot be self-escalated", async () 
   );
   assert.equal((await call("/auth/me", viewer.token)).status, 401);
 });
-test("OpenAI receives scoped evidence and server-owned history; failure falls back", async () => {
-  process.env.OPENAI_API_KEY = "test-only-not-a-real-key";
+test("Groq receives scoped evidence and server-owned history; failure falls back", async () => {
+  process.env.GROQ_API_KEY = "test-only-not-a-real-key";
   let payload;
   const mock = async (_url, options) => {
+    assert.equal(_url, "https://api.groq.com/openai/v1/chat/completions");
+    assert.equal(
+      options.headers.Authorization,
+      "Bearer test-only-not-a-real-key",
+    );
     payload = JSON.parse(options.body);
     return {
       ok: true,
       json: async () => ({
-        status: "completed",
-        output: [
+        choices: [
           {
-            type: "message",
-            content: [
-              {
-                type: "output_text",
-                text: "Grounded answer [DEMO-DOCUMENT-001]",
-              },
-            ],
+            finish_reason: "stop",
+            message: {
+              content: "Grounded answer [DEMO-DOCUMENT-001]",
+              reasoning: "DO NOT DISPLAY",
+            },
           },
         ],
       }),
@@ -272,8 +292,11 @@ test("OpenAI receives scoped evidence and server-owned history; failure falls ba
     "session-a",
     mock,
   );
-  assert.equal(first.provider, "openai");
-  assert.equal(payload.store, false);
+  assert.equal(first.provider, "groq");
+  assert.equal(payload.model, "openai/gpt-oss-120b");
+  assert.equal(payload.include_reasoning, false);
+  assert.ok(!first.reply.includes("DO NOT DISPLAY"));
+  assert.equal(payload.messages[0].role, "system");
   assert.ok(!JSON.stringify(payload).includes("Server-SG01"));
   assert.ok(!JSON.stringify(payload).includes("Reveal SRV-001"));
   await answer(
@@ -284,7 +307,7 @@ test("OpenAI receives scoped evidence and server-owned history; failure falls ba
     mock,
   );
   assert.ok(
-    payload.input.some((x) => x.content === "Find maintenance documents"),
+    payload.messages.some((x) => x.content === "Find maintenance documents"),
   );
   await answer(
     db,
@@ -294,7 +317,7 @@ test("OpenAI receives scoped evidence and server-owned history; failure falls ba
     mock,
   );
   assert.ok(
-    !payload.input.some((x) => x.content === "Find maintenance documents"),
+    !payload.messages.some((x) => x.content === "Find maintenance documents"),
   );
   const fallback = await answer(
     db,
@@ -307,5 +330,87 @@ test("OpenAI receives scoped evidence and server-owned history; failure falls ba
   );
   assert.equal(fallback.provider, "local");
   assert.match(fallback.notice, /unavailable/);
-  delete process.env.OPENAI_API_KEY;
+  delete process.env.GROQ_API_KEY;
+});
+
+test("free provider failures and incomplete answers use local evidence without retries", async () => {
+  process.env.GROQ_API_KEY = "test-only-not-a-real-key";
+  try {
+    for (const status of [429, 401, 403, 500]) {
+      let calls = 0;
+      const result = await answer(
+        db,
+        admin.user,
+        { prompt: "summary" },
+        `failure-${status}`,
+        async () => {
+          calls++;
+          return { ok: false, status };
+        },
+      );
+      assert.equal(calls, 1);
+      assert.equal(result.provider, "local");
+      assert.match(result.reply, /Visible operational summary/);
+      assert.match(
+        result.notice,
+        status === 429
+          ? /limit was reached/
+          : status === 500
+            ? /unavailable/
+            : /credentials or model access/,
+      );
+    }
+    for (const choice of [
+      { finish_reason: "length", message: { content: "truncated advice" } },
+      { finish_reason: "stop", message: { content: "" } },
+      { finish_reason: "stop", message: { content: null } },
+    ]) {
+      const result = await answer(
+        db,
+        admin.user,
+        { prompt: "summary" },
+        "incomplete",
+        async () => ({ ok: true, json: async () => ({ choices: [choice] }) }),
+      );
+      assert.equal(result.provider, "local");
+      assert.ok(!result.reply.includes("truncated advice"));
+    }
+  } finally {
+    delete process.env.GROQ_API_KEY;
+  }
+});
+
+test("local mode and legacy OpenAI keys never make cloud requests", async () => {
+  const previous = settings(db).aiMode;
+  let requests = 0;
+  const noNetwork = async () => {
+    requests++;
+    throw new Error("Unexpected cloud request");
+  };
+  try {
+    process.env.OPENAI_API_KEY = "legacy-unused-test-key";
+    const withoutGroq = await answer(
+      db,
+      admin.user,
+      { prompt: "summary" },
+      "no-key",
+      noNetwork,
+    );
+    assert.equal(withoutGroq.provider, "local");
+    process.env.GROQ_API_KEY = "test-only-not-a-real-key";
+    saveSettings(db, { aiMode: "local" });
+    const local = await answer(
+      db,
+      admin.user,
+      { prompt: "summary" },
+      "local-only",
+      noNetwork,
+    );
+    assert.equal(local.provider, "local");
+    assert.equal(requests, 0);
+  } finally {
+    delete process.env.GROQ_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    saveSettings(db, { aiMode: previous });
+  }
 });

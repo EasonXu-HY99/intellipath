@@ -54,10 +54,10 @@ function Modal({ title, onClose, children }) {
         glow
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display text-lg font-semibold text-white">
+          <h2 className="font-display text-lg font-semibold text-slate-900">
             {title}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-slate-600 hover:text-slate-900">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -70,7 +70,7 @@ function Modal({ title, onClose, children }) {
 function Field({ label, children }) {
   return (
     <label className="block">
-      <span className="text-xs uppercase tracking-wider text-slate-400">
+      <span className="text-xs uppercase tracking-wider text-slate-600">
         {label}
       </span>
       <div className="mt-1.5">{children}</div>
@@ -305,7 +305,7 @@ export default function Resources() {
       <GlassCard className="p-6 mb-6">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5">
           <div>
-            <h2 className="font-display font-semibold text-white">
+            <h2 className="font-display font-semibold text-slate-900">
               Cybersecurity Level Rule
             </h2>
             <p className="text-sm text-slate-500 mt-1">
@@ -322,7 +322,7 @@ export default function Resources() {
                 title={rule.scope}
                 className={`p-3 rounded-xl glass-soft text-center ${rule.level > account.cyber_level ? "opacity-35" : "border-cyan-400/30"}`}
               >
-                <p className="font-display font-bold text-white">
+                <p className="font-display font-bold text-slate-900">
                   L{rule.level}
                 </p>
                 <p className="text-[10px] text-slate-500 mt-1">
@@ -335,9 +335,9 @@ export default function Resources() {
       </GlassCard>
 
       <GlassCard className="overflow-hidden">
-        <div className="p-5 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <h2 className="font-display font-semibold text-white">
+            <h2 className="font-display font-semibold text-slate-900">
               Device & Permission Registry
             </h2>
             <p className="text-sm text-slate-500 mt-1">
@@ -394,7 +394,7 @@ export default function Resources() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[1050px]">
-              <thead className="bg-white/5 text-slate-400">
+              <thead className="bg-slate-100 text-slate-600">
                 <tr>
                   {[
                     "ID",
@@ -422,34 +422,34 @@ export default function Resources() {
                   return (
                     <tr
                       key={x.id}
-                      className="border-t border-white/5 align-top hover:bg-white/[0.02]"
+                      className="border-t border-slate-200 align-top hover:bg-white/[0.02]"
                     >
-                      <td className="p-4 font-mono text-xs text-slate-400">
+                      <td className="p-4 font-mono text-xs text-slate-600">
                         {x.id}
                       </td>
                       <td className="p-4">
-                        <p className="font-medium text-white">{x.name}</p>
+                        <p className="font-medium text-slate-900">{x.name}</p>
                         <p className="text-xs text-slate-500 mt-0.5">
                           {x.manufacturer} {x.model}
                         </p>
                       </td>
-                      <td className="p-4 text-slate-300">{x.type}</td>
+                      <td className="p-4 text-slate-700">{x.type}</td>
                       <td className="p-4">
                         <StatusBadge status={x.status} />
                       </td>
-                      <td className="p-4 text-slate-300">{x.owner}</td>
-                      <td className="p-4 text-slate-400">{x.location}</td>
-                      <td className="p-4 text-slate-300">{x.permission}</td>
+                      <td className="p-4 text-slate-700">{x.owner}</td>
+                      <td className="p-4 text-slate-600">{x.location}</td>
+                      <td className="p-4 text-slate-700">{x.permission}</td>
                       <td className="p-4">
                         <StatusBadge status={x.health} />
                       </td>
                       <td className="p-4">
-                        <span className="font-semibold text-white">
+                        <span className="font-semibold text-slate-900">
                           L{x.required_level}
                         </span>
                       </td>
                       <td className="p-4">
-                        <span className="text-slate-300">L{x.userLevel}</span>
+                        <span className="text-slate-700">L{x.userLevel}</span>
                       </td>
                       <td className="p-4">
                         <StatusBadge status={allowed ? "Allowed" : "Denied"} />
@@ -466,7 +466,7 @@ export default function Resources() {
         )}
       </GlassCard>
 
-      <div className="flex flex-wrap justify-between items-center gap-3 mt-3 text-xs text-slate-400">
+      <div className="flex flex-wrap justify-between items-center gap-3 mt-3 text-xs text-slate-600">
         <span>
           {filteredRows.length} visible matches · page {page} of{" "}
           {Math.max(1, Math.ceil(filteredRows.length / 20))}
@@ -495,7 +495,7 @@ export default function Resources() {
         <GlassCard className="p-6 xl:col-span-2">
           <div className="flex items-start justify-between gap-4 mb-5">
             <div>
-              <h3 className="font-display font-semibold text-white">
+              <h3 className="font-display font-semibold text-slate-900">
                 Permission Request Flow
               </h3>
               <select
@@ -529,29 +529,29 @@ export default function Resources() {
                     <div
                       className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold border ${
                         step.status === "Completed"
-                          ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/20"
+                          ? "bg-emerald-400/10 text-emerald-700 border-emerald-400/20"
                           : step.status === "In Review"
-                            ? "bg-amber-400/10 text-amber-300 border-amber-400/20"
-                            : "bg-white/5 text-slate-500 border-white/10"
+                            ? "bg-amber-400/10 text-amber-800 border-amber-400/20"
+                            : "bg-slate-100 text-slate-500 border-slate-200"
                       }`}
                     >
                       {index + 1}
                     </div>
                     {index < currentRequest.steps.length - 1 && (
-                      <div className="w-px h-12 bg-white/10 mt-2" />
+                      <div className="w-px h-12 bg-slate-100 mt-2" />
                     )}
                   </div>
                   <div className="flex-1 pb-3">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                       <div>
-                        <p className="font-medium text-white">{step.step}</p>
+                        <p className="font-medium text-slate-900">{step.step}</p>
                         <p className="text-xs text-slate-500">
                           Owner: {step.owner}
                         </p>
                       </div>
                       <StatusBadge status={step.status} />
                     </div>
-                    <p className="text-sm text-slate-400 mt-2">{step.note}</p>
+                    <p className="text-sm text-slate-600 mt-2">{step.note}</p>
                   </div>
                 </div>
               ))}
@@ -564,11 +564,11 @@ export default function Resources() {
         </GlassCard>
 
         <GlassCard className="p-6">
-          <h3 className="font-display font-semibold text-white mb-4">
+          <h3 className="font-display font-semibold text-slate-900 mb-4">
             Access Statement
           </h3>
           {user ? (
-            <div className="p-4 rounded-2xl glass-soft mb-4 text-sm text-slate-300">
+            <div className="p-4 rounded-2xl glass-soft mb-4 text-sm text-slate-700">
               <p>
                 <span className="text-slate-500">User:</span> {user.name}
               </p>
@@ -586,7 +586,7 @@ export default function Resources() {
                 <span className="text-slate-500">Access Result:</span>{" "}
                 <span
                   className={
-                    user.cyber_level >= 6 ? "text-emerald-300" : "text-rose-300"
+                    user.cyber_level >= 6 ? "text-emerald-700" : "text-rose-700"
                   }
                 >
                   {user.cyber_level >= 6 ? "Allowed" : "Denied"}
@@ -594,7 +594,7 @@ export default function Resources() {
               </p>
             </div>
           ) : null}
-          <h3 className="font-display font-semibold text-white mb-3">
+          <h3 className="font-display font-semibold text-slate-900 mb-3">
             AI Insight
           </h3>
           <p className="text-sm text-slate-500">

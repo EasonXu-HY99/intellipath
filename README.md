@@ -1,11 +1,11 @@
 # IntelliPath — Smart Operations Platform v2
 
-Operational security workspace with enforced L1-L7 record classification, grounded OpenAI assistance, cybersecurity PDF reports, and a searchable multi-site demo dataset. See [the v2 operations guide](docs/OPERATIONS-V2.md) for configuration, migration and validation.
+Operational security workspace with enforced L1-L7 record classification, Groq Free-plan AI integration, cybersecurity PDF reports, and a searchable multi-site demo dataset. See [the v2 operations guide](docs/OPERATIONS-V2.md) for configuration, migration and validation.
 
 A full-stack operational intelligence dashboard for tracking enterprise
 devices, personnel, cybersecurity access levels, permission request
 workflows, AI recommendations, and audit/system logs — with role-based
-access control and a glassmorphism UI.
+access control and a blue-and-white maritime engineering interface.
 
 Originally a single-file React prototype (`prototype/intellipath_full_gui_prototype.jsx`),
 now a complete application with a real database, REST API, and authentication.
@@ -17,8 +17,8 @@ now a complete application with a real database, REST API, and authentication.
 - **Login & role-based access** — 4 seeded accounts, each with different
   permissions and a different UI (navigation + actions are filtered by role)
 - **User management** — create/remove accounts, change password (admin only)
-- **Command Center** — live metrics, operational flow, AI recommendations, system health
-- **AI Assistant** — OpenAI Responses API over authorized evidence, session-owned conversation context, source references and explicit local fallback
+- **Command Center** — authorized inventory metrics, incidents, alerts, remediation and daily PDF reports
+- **AI Assistant** — Groq chat completions (GPT-OSS 120B, Free plan supported) over authorized evidence, session-owned conversation context, source references and explicit local fallback
 - **Central Search** — ranked, paginated search across people, devices, documents, maintenance, incidents, alerts, remediation, locations, requests and logs; document downloads and record details
 - **Daily cybersecurity PDF** — Singapore reporting day, unresolved carry-over, severity highlights, remediation ownership/deadlines, evidence and authorized inventory appendix
 - **Singapore site directory** — five officially published sites, exact-address Google Maps selection and links; headquarters shares the Tuas Boulevard location
@@ -27,8 +27,7 @@ now a complete application with a real database, REST API, and authentication.
   flow, new device / new request forms
 - **Logs & Audit** — audit trail + system/device event logs; CSV export
 - **Settings** — functional AI mode, report contents, alert threshold, search page size and new-session lifetime controls
-- **Glassmorphism UI** — dark glass surfaces, aurora "flowing light" background,
-  lucide icons, custom fonts (no emoji)
+- **Maritime UI** — navy navigation, white surfaces, original shipyard/engineer illustrations, responsive layouts and accessible status colors
 
 ## Demo accounts
 
@@ -55,7 +54,7 @@ now a complete application with a real database, REST API, and authentication.
 
 ```
 server/          Express API + SQLite schema/seed + RBAC/classification + grounded AI + PDF
-client/          Vite + React + Tailwind frontend (glass theme)
+client/          Vite + React + Tailwind frontend (maritime blue-and-white theme)
 prototype/       original single-file JSX prototype (kept for reference)
 data/            SQLite database file (git-ignored, auto-created)
 render.yaml      Render blueprint for one-click deployment

@@ -21,12 +21,12 @@ export default function SiteMap() {
           <h2 className="font-display text-lg font-semibold">
             Site Location View
           </h2>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-600">
             Singapore directory · {sites.length} published locations ·
             headquarters co-located at Tuas Boulevard
           </p>
         </div>
-        <MapPin className="text-cyan-300 shrink-0" />
+        <MapPin className="text-cyan-700 shrink-0" />
       </div>
       <div className="grid lg:grid-cols-[300px_minmax(0,1fr)] gap-4">
         <div className="space-y-2">
@@ -57,19 +57,19 @@ export default function SiteMap() {
                 : "Google Maps - Seatrium Singapore overview"
             }
             src={`https://www.google.com/maps?q=${encodeURIComponent(query)}&z=${site ? 16 : 11}&output=embed`}
-            className="w-full h-[420px] rounded-xl border border-white/10"
+            className="w-full h-[420px] rounded-xl border border-slate-200"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             allowFullScreen
           />
-          <div className="flex flex-wrap justify-between gap-2 mt-3 text-xs text-slate-400">
+          <div className="flex flex-wrap justify-between gap-2 mt-3 text-xs text-slate-600">
             <span>
               {site
                 ? `${site.phone} · Public address; site admission is separately controlled.`
                 : "Select a directory entry to open its exact address. Google controls overview search markers."}
             </span>
             <a
-              className="text-cyan-300 inline-flex items-center gap-1"
+              className="text-cyan-700 inline-flex items-center gap-1"
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`}
               target="_blank"
               rel="noreferrer"
@@ -79,13 +79,13 @@ export default function SiteMap() {
           </div>
         </div>
       </div>
-      <p className="text-xs text-slate-400 mt-4">
+      <p className="text-xs text-slate-600 mt-4">
         Addresses verified 20 Sep 2026 from{" "}
         <a
           href="https://www.seatrium.com/contact.php"
           target="_blank"
           rel="noreferrer"
-          className="text-cyan-300 underline"
+          className="text-cyan-700 underline"
         >
           Seatrium’s public contact directory
         </a>

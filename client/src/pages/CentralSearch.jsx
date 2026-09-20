@@ -100,7 +100,7 @@ export default function CentralSearch() {
           </select>
           <PrimaryButton disabled={busy}>Search</PrimaryButton>
         </form>
-        <p className="text-xs text-slate-400 mt-3">
+        <p className="text-xs text-slate-600 mt-3">
           Multi-word relevance ranking · Empty search browses records ·{" "}
           {data?.levels} only · Demo documents are downloadable
         </p>
@@ -111,7 +111,7 @@ export default function CentralSearch() {
         <ErrorBox error={error} onRetry={() => run()} />
       ) : (
         <>
-          <div className="flex justify-between mb-3 text-sm text-slate-400">
+          <div className="flex justify-between mb-3 text-sm text-slate-600">
             <span>{data?.total ?? 0} matching records</span>
             <span>
               Page {data?.page ?? 1} of{" "}
@@ -126,31 +126,31 @@ export default function CentralSearch() {
               <button
                 key={r.id}
                 onClick={() => inspect(r)}
-                className="text-left rounded-xl border border-white/10 bg-white/[.025] p-5 hover:border-cyan-400/40 transition min-w-0"
+                className="text-left rounded-xl border border-slate-200 bg-white/[.025] p-5 hover:border-cyan-400/40 transition min-w-0"
               >
-                <div className="flex justify-between gap-2 text-xs text-slate-400">
+                <div className="flex justify-between gap-2 text-xs text-slate-600">
                   <span>
                     {r.kind} · {r.id}
                   </span>
-                  <span className="text-cyan-300 shrink-0">
+                  <span className="text-cyan-700 shrink-0">
                     L{r.required_level}
                   </span>
                 </div>
-                <h3 className="text-white font-medium mt-2">{r.title}</h3>
-                <p className="text-xs text-slate-400 mt-1">
+                <h3 className="text-slate-900 font-medium mt-2">{r.title}</h3>
+                <p className="text-xs text-slate-600 mt-1">
                   {r.site} · {r.status}
                 </p>
-                <p className="text-sm text-slate-300 mt-3 line-clamp-2 break-words">
+                <p className="text-sm text-slate-700 mt-3 line-clamp-2 break-words">
                   {r.detail}
                 </p>
-                <span className="text-xs text-cyan-300 mt-3 block">
+                <span className="text-xs text-cyan-700 mt-3 block">
                   View record →
                 </span>
               </button>
             ))}
           </div>
           {data?.total === 0 && (
-            <GlassCard className="p-10 text-center text-slate-400">
+            <GlassCard className="p-10 text-center text-slate-600">
               No authorized matches. Try fewer words or clear the filters.
             </GlassCard>
           )}
@@ -182,11 +182,11 @@ export default function CentralSearch() {
             aria-modal="true"
             aria-label="Record details"
             onClick={(e) => e.stopPropagation()}
-            className="rounded-2xl border border-white/15 bg-slate-950 p-6 w-full max-w-2xl max-h-[85vh] overflow-auto"
+            className="rounded-2xl border border-slate-200 bg-slate-950 p-6 w-full max-w-2xl max-h-[85vh] overflow-auto"
           >
             <div className="flex justify-between gap-4">
               <div>
-                <p className="text-xs text-cyan-300">
+                <p className="text-xs text-cyan-700">
                   {selected.kind} · L{selected.required_level} · {selected.id}
                 </p>
                 <h2 className="text-xl font-semibold mt-2">{selected.title}</h2>
@@ -199,7 +199,7 @@ export default function CentralSearch() {
                 <X size={20} />
               </button>
             </div>
-            <p className="text-sm text-slate-400 mt-4">
+            <p className="text-sm text-slate-600 mt-4">
               {selected.site} · {selected.status}
             </p>
             <p className="whitespace-pre-wrap text-sm leading-relaxed mt-4 break-words">
@@ -207,7 +207,7 @@ export default function CentralSearch() {
             </p>
             {selected.content && selected.content !== selected.detail && (
               <details className="mt-4 text-xs">
-                <summary className="text-cyan-300 cursor-pointer">
+                <summary className="text-cyan-700 cursor-pointer">
                   Full record
                 </summary>
                 <pre className="whitespace-pre-wrap break-all mt-3">
@@ -233,7 +233,7 @@ export default function CentralSearch() {
               </button>
             )}
             {downloadError && (
-              <p className="text-rose-300 mt-2">{downloadError}</p>
+              <p className="text-rose-700 mt-2">{downloadError}</p>
             )}
           </div>
         </div>

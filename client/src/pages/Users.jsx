@@ -102,7 +102,7 @@ export default function UsersPage() {
             className="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
             <div>
-              <label className="text-xs uppercase tracking-wider text-slate-400">
+              <label className="text-xs uppercase tracking-wider text-slate-600">
                 Username
               </label>
               <input
@@ -114,7 +114,7 @@ export default function UsersPage() {
               />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider text-slate-400">
+              <label className="text-xs uppercase tracking-wider text-slate-600">
                 Full name
               </label>
               <input
@@ -126,7 +126,7 @@ export default function UsersPage() {
               />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider text-slate-400">
+              <label className="text-xs uppercase tracking-wider text-slate-600">
                 Role
               </label>
               <select
@@ -142,7 +142,7 @@ export default function UsersPage() {
               </select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider text-slate-400">
+              <label className="text-xs uppercase tracking-wider text-slate-600">
                 Password
               </label>
               <input
@@ -156,7 +156,7 @@ export default function UsersPage() {
               />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider text-slate-400">
+              <label className="text-xs uppercase tracking-wider text-slate-600">
                 Email (optional)
               </label>
               <input
@@ -173,13 +173,13 @@ export default function UsersPage() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="text-sm text-slate-400 hover:text-white px-2"
+                className="text-sm text-slate-600 hover:text-slate-900 px-2"
               >
                 Cancel
               </button>
             </div>
             {error && (
-              <p className="text-rose-300 text-sm md:col-span-3">{error}</p>
+              <p className="text-rose-700 text-sm md:col-span-3">{error}</p>
             )}
           </form>
         </GlassCard>
@@ -195,7 +195,7 @@ export default function UsersPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[720px]">
-              <thead className="bg-white/5 text-slate-400">
+              <thead className="bg-slate-100 text-slate-600">
                 <tr>
                   {[
                     "User",
@@ -214,29 +214,29 @@ export default function UsersPage() {
                 {(users.data?.users || []).map((u) => (
                   <tr
                     key={u.id}
-                    className="border-t border-white/5 align-middle"
+                    className="border-t border-slate-200 align-middle"
                   >
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg glass-soft flex items-center justify-center text-slate-300 font-semibold">
+                        <div className="w-9 h-9 rounded-lg glass-soft flex items-center justify-center text-slate-700 font-semibold">
                           {u.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium text-white">{u.name}</p>
+                          <p className="font-medium text-slate-900">{u.name}</p>
                           <p className="text-xs text-slate-500 font-mono">
                             {u.username}
                           </p>
                         </div>
                         {Number(u.id) === Number(me?.id) && (
-                          <span className="text-[10px] text-cyan-300 border border-cyan-400/20 rounded-full px-2 py-0.5">
+                          <span className="text-[10px] text-cyan-700 border border-cyan-400/20 rounded-full px-2 py-0.5">
                             You
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="inline-flex items-center gap-1.5 text-slate-200">
-                        <ShieldCheck className="w-4 h-4 text-cyan-300" />
+                      <span className="inline-flex items-center gap-1.5 text-slate-700">
+                        <ShieldCheck className="w-4 h-4 text-cyan-700" />
                         {u.roleLabel || u.role}
                       </span>
                       <select
@@ -266,7 +266,7 @@ export default function UsersPage() {
                         ))}
                       </select>
                     </td>
-                    <td className="p-4 text-slate-400">{u.email || "—"}</td>
+                    <td className="p-4 text-slate-600">{u.email || "—"}</td>
                     <td className="p-4 text-slate-500 text-xs">
                       {u.created_at}
                     </td>
@@ -274,7 +274,7 @@ export default function UsersPage() {
                       {Number(u.id) !== Number(me?.id) ? (
                         <button
                           onClick={() => removeUser(u)}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-rose-400/10 transition"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-rose-700 hover:bg-rose-400/10 transition"
                         >
                           <Trash2 className="w-3.5 h-3.5" /> Remove
                         </button>

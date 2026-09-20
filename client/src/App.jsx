@@ -87,17 +87,17 @@ function ChangePasswordModal({ onClose }) {
         onClick={onClose}
       />
       <GlassCard className="relative w-full max-w-sm p-6" glow>
-        <h2 className="font-display text-lg font-bold text-white flex items-center gap-2">
-          <KeyRound className="w-5 h-5 text-cyan-300" /> Change password
+        <h2 className="font-display text-lg font-bold text-slate-900 flex items-center gap-2">
+          <KeyRound className="w-5 h-5 text-cyan-700" /> Change password
         </h2>
         {done ? (
           <div className="mt-4">
-            <p className="text-sm text-emerald-300">
+            <p className="text-sm text-emerald-700">
               Password updated successfully.
             </p>
             <button
               onClick={onClose}
-              className="mt-4 w-full py-2 rounded-xl glass-soft text-sm text-white hover:bg-white/10"
+              className="mt-4 w-full py-2 rounded-xl glass-soft text-sm text-slate-900 hover:bg-slate-100"
             >
               Done
             </button>
@@ -129,11 +129,11 @@ function ChangePasswordModal({ onClose }) {
               onChange={(e) => setConfirm(e.target.value)}
               required
             />
-            {error && <p className="text-xs text-rose-300">{error}</p>}
+            {error && <p className="text-xs text-rose-700">{error}</p>}
             <button
               type="submit"
               disabled={busy}
-              className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 disabled:opacity-50"
+              className="w-full py-2.5 rounded-xl text-sm font-semibold text-slate-900 brand-fill disabled:opacity-50"
             >
               {busy ? "Updating…" : "Update password"}
             </button>
@@ -176,7 +176,7 @@ export default function App() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-flex w-14 h-14 rounded-2xl items-center justify-center font-display font-bold text-xl text-white bg-gradient-to-br from-cyan-400 to-violet-500">
+          <div className="inline-flex w-14 h-14 rounded-2xl items-center justify-center font-display font-bold text-xl text-slate-900 brand-fill">
             IP
           </div>
           <p className="text-slate-500 text-sm mt-4">Loading…</p>
@@ -196,37 +196,38 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen text-slate-100">
+    <div className="min-h-screen text-slate-700">
       <div className="aurora" />
 
       <div className="flex min-h-screen">
-        <aside className="w-60 shrink-0 h-screen sticky top-0 overflow-y-auto p-4 hidden lg:flex flex-col glass rounded-none border-y-0 border-l-0">
+        <aside className="marine-sidebar w-60 shrink-0 h-screen sticky top-0 overflow-y-auto p-4 hidden lg:flex flex-col glass rounded-none border-y-0 border-l-0">
           <div className="flex items-center gap-3 mb-8 px-1">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-400 to-violet-500 flex items-center justify-center font-display font-bold text-white shadow-lg shadow-cyan-500/20">
+            <div className="w-11 h-11 rounded-xl brand-fill flex items-center justify-center font-display font-bold text-slate-900 shadow-lg shadow-cyan-500/20">
               IP
             </div>
             <div>
-              <h1 className="font-display font-bold text-lg text-white leading-none">
+              <h1 className="font-display font-bold text-lg text-slate-900 leading-none">
                 Intelli<span className="text-gradient">Path</span>
               </h1>
               <p className="text-[11px] text-slate-500 mt-1">
-                Smart Operations
+                MARITIME OPERATIONS
               </p>
             </div>
           </div>
 
-          <nav className="space-y-1 flex-1">
+          <nav aria-label="Main navigation" className="space-y-1 flex-1">
             {nav.map((item) => {
               const Icon = item.icon;
               const isActive = active === item.id;
               return (
                 <button
                   key={item.id}
+                  aria-current={isActive ? "page" : undefined}
                   onClick={() => setActive(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition ${
                     isActive
-                      ? "bg-gradient-to-r from-cyan-500/20 to-violet-500/20 text-white border border-white/10"
-                      : "text-slate-400 hover:text-white hover:bg-white/5"
+                      ? "nav-active"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                   }`}
                 >
                   <Icon className="w-5 h-5" strokeWidth={1.75} />
@@ -238,11 +239,11 @@ export default function App() {
 
           <div className="mt-4 glass-soft rounded-xl p-3">
             <p className="text-[11px] text-slate-500 uppercase tracking-wider">
-              AI Layer
+              Built around your people
             </p>
-            <p className="flex items-center gap-2 text-xs mt-1 text-slate-300">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-300" /> Evidence-based
-              assistance
+            <p className="flex items-center gap-2 text-xs mt-1 text-slate-700">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-700" /> People.
+              Engineering. Progress.
             </p>
           </div>
         </aside>
@@ -250,22 +251,24 @@ export default function App() {
         <main className="flex-1 min-w-0 flex flex-col">
           <header className="glass rounded-none border-x-0 border-t-0 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 sticky top-0 z-30">
             <div>
-              <p className="text-[11px] text-slate-400 uppercase tracking-wider">
-                Demo Workspace · Singapore
+              <p className="text-[11px] text-slate-600 uppercase tracking-wider">
+                Seatrium · Singapore / Demo workspace
               </p>
-              <p className="font-semibold text-white">Welcome, {user.name}</p>
+              <p className="font-semibold text-slate-900">
+                Welcome, {user.name}
+              </p>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-emerald-300 bg-emerald-400/10 border border-emerald-400/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-blue-700 bg-blue-50 border border-blue-100">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                 Clearance L{user.cyber_level} · {user.roleLabel}
               </span>
 
               {hasPermission("ai") && (
                 <button
                   onClick={() => setActive("ai")}
-                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-cyan-500/80 to-violet-500/80 hover:from-cyan-400 hover:to-violet-400 transition"
+                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-slate-900 brand-fill transition"
                 >
                   <Sparkles className="w-4 h-4" /> Ask AI
                 </button>
@@ -274,18 +277,18 @@ export default function App() {
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setMenuOpen((o) => !o)}
-                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-white/5 transition"
+                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-slate-100 transition"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/30 to-violet-500/30 border border-white/10 flex items-center justify-center font-semibold text-white">
+                  <div className="w-9 h-9 rounded-lg brand-fill border border-slate-200 flex items-center justify-center font-semibold text-slate-900">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                  <ChevronDown className="w-4 h-4 text-slate-600" />
                 </button>
 
                 {menuOpen && (
                   <div className="absolute right-0 mt-2 w-56 rounded-xl glass p-1.5 shadow-2xl z-40">
-                    <div className="px-3 py-2 border-b border-white/5">
-                      <p className="text-sm font-medium text-white">
+                    <div className="px-3 py-2 border-b border-slate-200">
+                      <p className="text-sm font-medium text-slate-900">
                         {user.name}
                       </p>
                       <p className="text-xs text-slate-500">{user.roleLabel}</p>
@@ -295,13 +298,13 @@ export default function App() {
                         setMenuOpen(false);
                         setShowPw(true);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5"
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
                     >
                       <KeyRound className="w-4 h-4" /> Change password
                     </button>
                     <button
                       onClick={signOut}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-rose-300 hover:bg-rose-400/10"
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-rose-700 hover:bg-rose-400/10"
                     >
                       <LogOut className="w-4 h-4" /> Sign out
                     </button>
@@ -313,13 +316,13 @@ export default function App() {
 
           <nav
             aria-label="Mobile navigation"
-            className="lg:hidden flex gap-2 overflow-x-auto p-3 border-b border-white/10"
+            className="lg:hidden flex gap-2 overflow-x-auto p-3 border-b border-slate-200"
           >
             {nav.map((n) => (
               <button
                 key={n.id}
                 onClick={() => setActive(n.id)}
-                className={`shrink-0 rounded-lg px-3 py-2 text-xs ${active === n.id ? "bg-cyan-500/20 text-cyan-200" : "text-slate-300"}`}
+                className={`shrink-0 rounded-lg px-3 py-2 text-xs ${active === n.id ? "bg-cyan-500/20 text-cyan-700" : "text-slate-700"}`}
               >
                 {n.label}
               </button>

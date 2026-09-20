@@ -2,15 +2,25 @@
 
 ## Run and validate
 
-Use Node 24 or later. Run `npm ci`, `npm test`, `npm run build`, then `npm start`. Tests use an isolated in-memory SQLite database and mock OpenAI responses; they do not call paid services or modify the live database. The server health response includes `version: "2.0"`.
+Use Node 24 or later. Run `npm ci`, `npm test`, `npm run build`, then `npm start`. Tests use an isolated in-memory SQLite database and mock Groq responses; they do not call paid services or modify the live database. The server health response includes `version: "2.0"`.
 
-## OpenAI setup
+## Free AI setup (Groq)
 
-In the existing Render service's Environment settings, set `OPENAI_API_KEY` to a project-scoped OpenAI key and optionally set `OPENAI_MODEL` (default `gpt-4.1-mini`). Do not put keys in a commit, chat, frontend build variable or Settings field. The app uses the [Responses API](https://developers.openai.com/api/docs/guides/text), sends `store: false`, and reads only authorized evidence. Model/project availability and billing must be enabled on the OpenAI account.
+1. Create a [GroqCloud account](https://console.groq.com/) and keep it on the **Free plan**. Do not upgrade to Developer or attach payment for this demo. The app cannot detect your billing tier; the same API becomes metered if you upgrade the account.
+2. Create an [API key](https://console.groq.com/keys). In Render > this service > Environment, set `GROQ_API_KEY` to the key and `GROQ_MODEL=openai/gpt-oss-120b` (also the default). Save and redeploy once the code is merged. Do not send keys in chat, commit them, or create a `VITE_` key.
+3. Open Settings: leave Answer mode on Groq with local fallback. Configuration status means a key is present, not that credentials were validated. Ask AI a question: a successful response is labeled **Groq**, with evidence references. A **Local** response explains why fallback occurred.
 
-For local development, copy `.env.example` to `.env`, fill it locally, then run `node --env-file=.env server/index.js`. Normal `npm start` reads process environment variables supplied by Render. The Settings page reports whether a key is configured, not whether its credentials/billing were validated. A real request is required for that check.
+The `openai/` model identifier refers to an open-weight model hosted by Groq. All inference requests go to `api.groq.com`; the paid OpenAI API is not called and legacy `OPENAI_API_KEY` / `OPENAI_MODEL` variables are ignored.
 
-AI auto mode calls OpenAI when configured. Local-only mode never calls OpenAI. Timeouts, provider errors and incomplete responses fall back to labeled local retrieval. Prompts are bounded, requests are throttled, and only the server's session-owned conversation history is accepted. Conversation state expires after 30 minutes and is cleared on server restart; it is not shared across instances. No AI action changes a record or grants access. Source cards show retrieval evidence, not a guarantee that every model sentence is correct.
+Groq currently offers a Free plan with organization-level request/token limits; see your [account limits](https://console.groq.com/settings/limits) and [official rate-limit documentation](https://console.groq.com/docs/rate-limits). Free availability and quotas can change. A 429 response falls back immediately to local retrieval, without retries, another key or a paid provider. Authentication/model permission failures, network timeouts and incomplete answers also fall back with distinct notices. Staying on the Free plan is the billing safeguard, not the model name. [Billing FAQ](https://console.groq.com/docs/billing-faqs).
+
+Only authorized retrieval evidence and this session's recent conversation are sent to Groq. The context is bounded to 12 evidence excerpts and four recent messages; output is capped at 2,048 completion tokens (including reasoning). Only the final answer is displayed. Evidence is a partial retrieval sample. Under [Groq's data policy](https://console.groq.com/docs/your-data), inference content is not normally retained, but reliability/abuse logs may be retained up to 30 days. Zero Data Retention can be enabled in Data Controls; usage metadata is still collected. The demo uses synthetic operational records.
+
+For local development, copy `.env.example` to `.env`, fill it locally, then run `node --env-file=.env server/index.js`. Normal `npm start` reads process environment supplied by Render. Local-only mode never calls a cloud provider. Requests are throttled; only server-owned session history is accepted, expiring after 30 minutes and on server restart. AI cannot change records or grant access. Source cards are retrieved evidence, not a guarantee that every generated sentence is correct.
+
+## Maritime visual theme
+
+The blue-and-white interface draws on [Seatrium's maritime engineering and people-focused values](https://www.seatrium.com/). Navy navigation, white work surfaces, blue primary actions and semantic incident colors replace the earlier neon glass theme. Login and Command Center use original SVG artwork of shipyard cranes, a vessel and engineers reviewing plans. The illustration is bundled locally, requires no image service or license subscription, and does not depict actual personnel. The SEATRIUM text identifies the concept's context; it is not an official logo reproduction or endorsement. Mobile layouts and reduced-motion preferences are supported.
 
 ## Classification and roles
 
@@ -41,7 +51,7 @@ The additive dataset supplies 105 new assets, 60 synthetic people, 105 each of d
 
 | Setting | Effect |
 |---|---|
-| AI mode | Enables configured OpenAI or forces local retrieval |
+| AI mode | Enables configured Groq or forces local retrieval |
 | Report inventory appendix | Includes/excludes full inventory and knowledge detail |
 | Report evidence logs | Includes/excludes the selected day's system/audit timeline |
 | Search page size | Default 10, 20 or 50 results on the next search |
@@ -58,4 +68,4 @@ The repository's Render blueprint auto-deploys master. Its free-tier filesystem 
 
 ## Validation
 
-Regression tests cover all seven clearances, forged preview/direct object access, search scoping and pagination, document/PDF access, account-session revocation, settings validation/effects, Singapore date boundaries, request states, and mocked OpenAI evidence/history/fallback behavior. The UI is checked in desktop and 390px layouts; no horizontal document overflow is expected. PDF samples are rendered and checked for page numbers, section coverage and text bounds. Real OpenAI credentials and the live Render deployment require separate post-deploy verification.
+Regression tests cover all seven clearances, forged preview/direct object access, search scoping and pagination, document/PDF access, account-session revocation, settings validation/effects, Singapore date boundaries, request states, and mocked Groq evidence/history/fallback behavior. The UI is checked in desktop and 390px layouts; no horizontal document overflow is expected. PDF samples are rendered and checked for page numbers, section coverage and text bounds. Real Groq credentials and the live Render deployment require separate post-deploy verification.

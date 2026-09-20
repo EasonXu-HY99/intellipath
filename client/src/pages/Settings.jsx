@@ -63,7 +63,7 @@ export default function SettingsPage() {
       />
       {error && <ErrorBox error={error} />}
       {message && (
-        <p role="status" className="text-sm text-cyan-300 mb-5">
+        <p role="status" className="text-sm text-cyan-700 mb-5">
           {message}
         </p>
       )}
@@ -78,20 +78,30 @@ export default function SettingsPage() {
               onChange={(e) => change("aiMode", e.target.value)}
             >
               <option value="auto">
-                OpenAI when configured, local fallback
+                Groq (Free plan supported), local fallback
               </option>
               <option value="local">Local retrieval only</option>
             </select>
           </label>
-          <p className="text-sm text-slate-400 mt-3">
+          <p className="text-sm text-slate-600 mt-3">
             {ai.configured
-              ? `OpenAI configured · ${ai.model}`
-              : "OpenAI key not configured. Local retrieval remains available."}
+              ? `Groq configured · ${ai.model}`
+              : "Groq key not configured. Local retrieval remains available."}
           </p>
-          <p className="text-xs text-slate-400 mt-3">
-            OpenAI receives only authorized evidence. Credentials are managed in
-            server environment variables, never in this browser.
+          <p className="text-xs text-slate-600 mt-3">
+            Groq receives only authorized evidence. Credentials are managed in
+            server environment variables, never in this browser. Use a Groq Free
+            plan account to avoid charges. The app cannot verify your billing
+            tier.
           </p>
+          <a
+            href="https://console.groq.com/keys"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block text-sm text-blue-700 underline mt-3"
+          >
+            Get a Groq API key
+          </a>
         </GlassCard>
         <GlassCard className="p-6">
           <h2 className="text-lg font-semibold mb-4">PDF report contents</h2>
@@ -109,7 +119,7 @@ export default function SettingsPage() {
               {label}
             </label>
           ))}
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600">
             Incidents, alerts and remediation are always included within your
             clearance. Reporting days use Singapore time; evidence timestamps
             retain their recorded offsets.
@@ -143,7 +153,7 @@ export default function SettingsPage() {
               ))}
             </select>
           </label>
-          <p className="text-xs text-slate-400 mt-3">
+          <p className="text-xs text-slate-600 mt-3">
             Changes dashboard alert counts and recommendations. Full reports
             retain every alert severity.
           </p>
@@ -161,7 +171,7 @@ export default function SettingsPage() {
               onChange={(e) => change("sessionHours", Number(e.target.value))}
             />
           </label>
-          <p className="text-xs text-slate-400 mt-3">
+          <p className="text-xs text-slate-600 mt-3">
             1–168 hours. Existing sessions keep their expiry. Changing an
             account clearance revokes its sessions immediately. Classification
             enforcement and audit recording are always enabled.

@@ -61,12 +61,12 @@ export default function AIAssistant() {
       />
       <div className="grid lg:grid-cols-[minmax(0,1fr)_250px] gap-5">
         <GlassCard className="flex flex-col min-w-0 overflow-hidden">
-          <div className="p-4 border-b border-white/10 flex justify-between items-center gap-3">
+          <div className="p-4 border-b border-slate-200 flex justify-between items-center gap-3">
             <div>
               <h2 className="font-semibold">IntelliPath AI</h2>
-              <p className="text-xs text-cyan-300">
-                {status.data?.provider === "openai"
-                  ? "OpenAI · grounded answers"
+              <p className="text-xs text-cyan-700">
+                {status.data?.provider === "groq"
+                  ? "Groq · grounded answers"
                   : "Local retrieval"}{" "}
                 · L1–L{user.cyber_level}
               </p>
@@ -93,18 +93,18 @@ export default function AIAssistant() {
                 className={`flex ${m.role === "user" ? "justify-end" : ""}`}
               >
                 <div
-                  className={`chat-bubble ${m.role === "user" ? "user-bubble" : ""} ${m.error ? "text-rose-300" : ""}`}
+                  className={`chat-bubble ${m.role === "user" ? "user-bubble" : ""} ${m.error ? "text-rose-700" : ""}`}
                 >
                   <p className="whitespace-pre-wrap break-words">{m.text}</p>
                   {m.notice && (
-                    <p className="text-xs text-slate-400 mt-3 border-t border-white/10 pt-2">
-                      {m.provider === "openai" ? "OpenAI" : "Local"} ·{" "}
+                    <p className="text-xs text-slate-600 mt-3 border-t border-slate-200 pt-2">
+                      {m.provider === "groq" ? "Groq" : "Local"} ·{" "}
                       {m.notice}
                     </p>
                   )}
                   {m.sources?.length > 0 && (
                     <details className="text-xs mt-3">
-                      <summary className="cursor-pointer text-cyan-300">
+                      <summary className="cursor-pointer text-cyan-700">
                         {m.sources.length} supporting records
                       </summary>
                       <ul className="mt-2 space-y-1">
@@ -121,7 +121,7 @@ export default function AIAssistant() {
               </div>
             ))}
             {busy && (
-              <p className="text-sm text-cyan-300 animate-pulse">
+              <p className="text-sm text-cyan-700 animate-pulse">
                 Reviewing authorized evidence…
               </p>
             )}
@@ -131,7 +131,7 @@ export default function AIAssistant() {
               e.preventDefault();
               ask();
             }}
-            className="p-4 border-t border-white/10"
+            className="p-4 border-t border-slate-200"
           >
             <div className="flex gap-2 items-end">
               <textarea
@@ -152,12 +152,12 @@ export default function AIAssistant() {
               <button
                 aria-label="Send question"
                 disabled={busy || !input.trim()}
-                className="p-3 rounded-xl bg-cyan-600 disabled:opacity-40"
+                className="p-3 rounded-xl brand-fill disabled:opacity-40"
               >
                 <Send size={20} />
               </button>
             </div>
-            <p className="text-xs text-slate-400 mt-2">
+            <p className="text-xs text-slate-600 mt-2">
               Enter to send · Shift+Enter for a new line · Advice requires human
               review
             </p>
@@ -177,7 +177,7 @@ export default function AIAssistant() {
               </button>
             ))}
           </div>
-          <div className="mt-5 text-xs text-slate-400 leading-relaxed">
+          <div className="mt-5 text-xs text-slate-600 leading-relaxed">
             Conversation context stays in this session and expires after
             inactivity. Sensitive chat history is not saved in browser storage.
             Demo records describe simulated events.
