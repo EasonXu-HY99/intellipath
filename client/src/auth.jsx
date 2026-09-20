@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { api, setToken, getToken } from "./api.js";
 
 const AuthContext = createContext(null);
@@ -6,6 +13,13 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const expire = () => setUser(null);
+    window.addEventListener("intellipath:session-expired", expire);
+    return () =>
+      window.removeEventListener("intellipath:session-expired", expire);
+  }, []);
 
   useEffect(() => {
     if (!getToken()) {
@@ -38,12 +52,12 @@ export function AuthProvider({ children }) {
 
   const hasPermission = useCallback(
     (perm) => !!user?.permissions?.includes(perm),
-    [user]
+    [user],
   );
 
   const value = useMemo(
     () => ({ user, loading, login, logout, hasPermission }),
-    [user, loading, login, logout, hasPermission]
+    [user, loading, login, logout, hasPermission],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { seedDatabase } from "./seed.js";
+import { migrateOperations } from "./upgrade.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -143,17 +144,29 @@ ensureColumn("resources", "health", "TEXT DEFAULT 'Healthy'");
 ensureColumn("people", "department", "TEXT DEFAULT ''");
 ensureColumn("people", "email", "TEXT DEFAULT ''");
 ensureColumn("audit_logs", "category", "TEXT DEFAULT 'general'");
-ensureColumn("permission_requests", "created_at", "TEXT DEFAULT (datetime('now'))");
+ensureColumn(
+  "permission_requests",
+  "created_at",
+  "TEXT DEFAULT (datetime('now'))",
+);
 
 // Seed demo data on first boot (idempotent).
 seedDatabase(db);
+migrateOperations(db);
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 export function canAccess(userLevel, requiredLevel) {
-  return userLevel >= requiredLevel;
+  return (
+    Number.isInteger(userLevel) &&
+    Number.isInteger(requiredLevel) &&
+    requiredLevel >= 1 &&
+    requiredLevel <= 7 &&
+    userLevel >= requiredLevel &&
+    userLevel <= 7
+  );
 }
 
 export function listResources(db) {
@@ -211,29 +224,31 @@ export function getSetting(db, key, fallback = null) {
 
 export function setSetting(db, key, value) {
   db.prepare(
-    "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+    "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
   ).run(key, value);
 }
 
 export function formatTimestamp(date = new Date()) {
-  const p = (n) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())} ${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`;
+  return date.toISOString();
 }
 
 export function logAudit(db, { user, action, result, category = "general" }) {
   const time = formatTimestamp();
   return db
     .prepare(
-      "INSERT INTO audit_logs (time, user, action, result, category) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO audit_logs (time, user, action, result, category) VALUES (?, ?, ?, ?, ?)",
     )
     .run(time, user, action, result, category);
 }
 
-export function logSystem(db, { deviceId, deviceName, source, eventType, severity, message, timestamp }) {
+export function logSystem(
+  db,
+  { deviceId, deviceName, source, eventType, severity, message, timestamp },
+) {
   const ts = timestamp || formatTimestamp();
   return db
     .prepare(
-      "INSERT INTO system_logs (timestamp, device_id, device_name, source, event_type, severity, message) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      "INSERT INTO system_logs (timestamp, device_id, device_name, source, event_type, severity, message) VALUES (?, ?, ?, ?, ?, ?, ?)",
     )
     .run(ts, deviceId, deviceName, source, eventType, severity, message);
 }
@@ -246,7 +261,7 @@ export function listPermissionRequests(db) {
     ...req,
     steps: db
       .prepare(
-        "SELECT step, owner, status, note, sort_order FROM permission_steps WHERE request_id = ? ORDER BY sort_order"
+        "SELECT step, owner, status, note, sort_order FROM permission_steps WHERE request_id = ? ORDER BY sort_order",
       )
       .all(req.id),
   }));
@@ -266,14 +281,16 @@ export function getUserById(db, id) {
 
 export function listUsers(db) {
   return db
-    .prepare("SELECT id, username, name, role, email, created_at FROM users ORDER BY id")
+    .prepare(
+      "SELECT id, username, name, role, email, cyber_level, created_at FROM users ORDER BY id",
+    )
     .all();
 }
 
 export function createUser(db, { username, passwordHash, name, role, email }) {
   const info = db
     .prepare(
-      "INSERT INTO users (username, password_hash, name, role, email) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO users (username, password_hash, name, role, email) VALUES (?, ?, ?, ?, ?)",
     )
     .run(username, passwordHash, name, role, email || null);
   return getUserById(db, Number(info.lastInsertRowid));
@@ -282,7 +299,7 @@ export function createUser(db, { username, passwordHash, name, role, email }) {
 export function updateUserPassword(db, userId, passwordHash) {
   db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(
     passwordHash,
-    userId
+    userId,
   );
 }
 
@@ -292,16 +309,16 @@ export function deleteUser(db, userId) {
 
 export function createSession(db, userId, token, expiresAt) {
   db.prepare(
-    "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)"
+    "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
   ).run(token, userId, expiresAt);
 }
 
 export function getSessionUser(db, token) {
   return db
     .prepare(
-      `SELECT u.id, u.username, u.name, u.role, u.email, s.token AS session_token
+      `SELECT u.id, u.username, u.name, u.role, u.email, u.cyber_level, s.token AS session_token
        FROM sessions s JOIN users u ON u.id = s.user_id
-       WHERE s.token = ? AND s.expires_at > ?`
+       WHERE s.token = ? AND s.expires_at > ?`,
     )
     .get(token, new Date().toISOString());
 }
