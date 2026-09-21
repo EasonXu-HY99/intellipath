@@ -1,6 +1,6 @@
 {
   "name": "intellipath",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "IntelliPath — Smart Operations Platform (React + Vite + Tailwind, Express + SQLite)",
   "private": true,
   "type": "module",

@@ -18,13 +18,16 @@ import { GlassCard, Toast, fieldCls } from "./components/ui.jsx";
 import Login from "./pages/Login.jsx";
 import Overview from "./pages/Overview.jsx";
 import AIAssistant from "./pages/AIAssistant.jsx";
-import CentralSearch from "./pages/CentralSearch.jsx";
+import CentralSearch from "./pages/ResourceWorkspace.jsx";
+import PeoplePlaces from "./pages/PeoplePlaces.jsx";
 import Resources from "./pages/Resources.jsx";
 import Audit from "./pages/Audit.jsx";
 import SettingsPage from "./pages/Settings.jsx";
 import UsersPage from "./pages/Users.jsx";
 
 const NAV = [
+  { id: "search", label: "Resource Workspace", icon: Search, perm: "search" },
+  { id: "people", label: "People & Places", icon: UsersRound, perm: "search" },
   {
     id: "overview",
     label: "Command Center",
@@ -32,7 +35,6 @@ const NAV = [
     perm: "overview",
   },
   { id: "ai", label: "AI Assistant", icon: Bot, perm: "ai" },
-  { id: "search", label: "Central Search", icon: Search, perm: "search" },
   {
     id: "resources",
     label: "Resource Tracking",
@@ -48,6 +50,7 @@ const PAGES = {
   overview: Overview,
   ai: AIAssistant,
   search: CentralSearch,
+  people: PeoplePlaces,
   resources: Resources,
   audit: Audit,
   settings: SettingsPage,
@@ -146,11 +149,15 @@ function ChangePasswordModal({ onClose }) {
 
 export default function App() {
   const { user, loading, logout, hasPermission } = useAuth();
-  const [active, setActive] = useState("overview");
+  const [active, setActive] = useState("search");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const [toast, setToast] = useState(null);
   const menuRef = useRef(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [active, user?.id]);
 
   useEffect(() => {
     function onClick(e) {
@@ -168,7 +175,7 @@ export default function App() {
 
   useEffect(() => {
     if (!nav.some((n) => n.id === active)) {
-      setActive(nav[0]?.id || "overview");
+      setActive(nav[0]?.id || "search");
     }
   }, [nav, active]);
 
@@ -201,6 +208,9 @@ export default function App() {
 
       <div className="flex min-h-screen">
         <aside className="marine-sidebar w-60 shrink-0 h-screen sticky top-0 overflow-y-auto p-4 hidden lg:flex flex-col glass rounded-none border-y-0 border-l-0">
+          <div className="sidebar-identity">
+            <img src="/brands/seatrium-white.svg" alt="Seatrium" />
+          </div>
           <div className="flex items-center gap-3 mb-8 px-1">
             <div className="w-11 h-11 rounded-xl brand-fill flex items-center justify-center font-display font-bold text-slate-900 shadow-lg shadow-cyan-500/20">
               IP

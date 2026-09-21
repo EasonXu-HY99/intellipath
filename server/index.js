@@ -1,3 +1,5 @@
+import { AGENTS, SOURCES, saveUpload } from "./workspace.js";
+import { agentSearch } from "./agents.js";
 import express from "express";
 import fs from "node:fs";
 import path from "node:path";
@@ -34,7 +36,11 @@ import { answer, assistantStatus } from "./assistant.js";
 import { buildReport, reportPDF } from "./report.js";
 
 export const app = express();
-app.use(express.json({ limit: "32kb" }));
+app.use((req, res, next) =>
+  req.path === "/api/files/upload"
+    ? next()
+    : express.json({ limit: "32kb" })(req, res, next),
+);
 app.disable("x-powered-by");
 app.use("/api", (_req, res, next) => {
   res.set("Cache-Control", "no-store");
@@ -51,7 +57,7 @@ app.get("/api/health", (_req, res) =>
     ok: true,
     service: "IntelliPath API",
     db: "sqlite",
-    version: "2.0",
+    version: "2.1",
     time: new Date().toISOString(),
   }),
 );
@@ -99,6 +105,34 @@ app.post("/api/auth/login", (req, res) => {
   res.json({ token, user: publicUser(user) });
 });
 app.use("/api", requireAuth);
+app.get("/api/workspace", requirePermission("search"), (req, res) =>
+  res.json({ agents: AGENTS, sources: SOURCES }),
+);
+app.post(
+  "/api/agents/search",
+  requirePermission("search"),
+  (req, res, next) => {
+    try {
+      res.json(agentSearch(scope(req), req.body));
+    } catch (e) {
+      next(e);
+    }
+  },
+);
+app.post(
+  "/api/files/upload",
+  requirePermission("files.upload"),
+  express.json({ limit: "7mb" }),
+  (req, res, next) => {
+    try {
+      const file = saveUpload(db, req.user, req.body);
+      audit(req, `Uploaded file ${file.id}`);
+      res.status(201).json({ file });
+    } catch (e) {
+      next(e);
+    }
+  },
+);
 app.post("/api/auth/logout", (req, res) => {
   deleteSession(db, req.token);
   res.json({ ok: true });
@@ -393,6 +427,15 @@ app.get(
       (r) => r.id === req.params.id && r.kind === "Document",
     );
     if (!r) return res.status(404).json({ error: "Document not found." });
+    const uploaded = db
+      .prepare("SELECT filename,bytes FROM uploads WHERE id=?")
+      .get(r.id);
+    if (uploaded)
+      return res
+        .set("X-Content-Type-Options", "nosniff")
+        .type("application/octet-stream")
+        .attachment(uploaded.filename)
+        .send(Buffer.from(uploaded.bytes));
     res
       .type("text/markdown")
       .attachment(`${r.id}.md`)

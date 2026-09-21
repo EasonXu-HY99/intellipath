@@ -5,6 +5,7 @@ import { useAuth } from "../auth.jsx";
 import { GlassCard, fieldCls } from "../components/ui.jsx";
 
 const DEMO_ACCOUNTS = [
+  { role: "Engineer", username: "engineer", password: "Engineer@2026" },
   { role: "Administrator", username: "admin", password: "Admin@2026" },
   { role: "Operations Manager", username: "fsun", password: "Manager@2026" },
   { role: "Security Analyst", username: "mlim", password: "Analyst@2026" },
@@ -35,7 +36,12 @@ export default function Login() {
     <div className="login-layout">
       <section className="login-story">
         <div className="story-brand">
-          SEATRIUM <span>MARITIME OPERATIONS</span>
+          <img
+            src="/brands/seatrium-white.svg"
+            alt="Seatrium"
+            className="seatrium-login-logo"
+          />{" "}
+          <span>MARITIME OPERATIONS</span>
         </div>
         <div className="story-copy">
           <p className="eyebrow">ENGINEERING WITH PURPOSE</p>

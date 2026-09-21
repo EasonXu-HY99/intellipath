@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { seedDatabase } from "./seed.js";
+import { migrateWorkspace } from "./workspace.js";
 import { migrateOperations } from "./upgrade.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -153,6 +154,7 @@ ensureColumn(
 // Seed demo data on first boot (idempotent).
 seedDatabase(db);
 migrateOperations(db);
+migrateWorkspace(db);
 
 // ---------------------------------------------------------------------------
 // Helpers

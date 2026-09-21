@@ -1,3 +1,4 @@
+import { migrateWorkspace } from "./workspace.js";
 // Seed realistic demo data. Idempotent: users are seeded whenever the users
 // table is empty; the domain data (resources/people/logs/etc.) is seeded
 // whenever the resources table is empty. `force` wipes and reseeds everything.
@@ -203,6 +204,7 @@ export function seedDatabase(db, { force = false } = {}) {
   const resourcesExist = db.prepare("SELECT COUNT(*) AS n FROM resources").get().n > 0;
 
   if (force) {
+    if (db.prepare("SELECT name FROM sqlite_master WHERE name='uploads'").get()) db.exec("DELETE FROM uploads;");
     if (db.prepare("SELECT name FROM sqlite_master WHERE name='knowledge_records'").get()) db.exec('DELETE FROM knowledge_records; DELETE FROM operation_migrations;');
     db.exec(
       "DELETE FROM permission_steps; DELETE FROM permission_requests; DELETE FROM resources; DELETE FROM people; DELETE FROM audit_logs; DELETE FROM ai_recommendations; DELETE FROM settings; DELETE FROM level_rules; DELETE FROM system_logs; DELETE FROM sessions; DELETE FROM users;"
@@ -295,6 +297,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const db = new DatabaseSync(DB_PATH);
   const result = seedDatabase(db, { force: true });
   migrateOperations(db);
+  migrateWorkspace(db);
   console.log(`Seed ${result.seeded ? "complete" : "skipped"} -> ${DB_PATH}`);
   db.close();
 }

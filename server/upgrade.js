@@ -1,6 +1,6 @@
 import { SITES } from "./sites.js";
 
-export const DEFAULT_LEVELS = { admin: 7, manager: 6, analyst: 5, viewer: 1 };
+export const DEFAULT_LEVELS = { admin: 7, manager: 6, analyst: 5, engineer: 4, viewer: 1 };
 export function migrateOperations(db) {
   const add = (table, column, ddl) => {
     if (

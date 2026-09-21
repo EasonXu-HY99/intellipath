@@ -23,6 +23,7 @@ const ROLES = [
   { id: "admin", label: "Administrator" },
   { id: "manager", label: "Operations Manager" },
   { id: "analyst", label: "Security Analyst" },
+  { id: "engineer", label: "Engineer" },
   { id: "viewer", label: "Viewer" },
 ];
 

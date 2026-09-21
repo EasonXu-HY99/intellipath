@@ -2,7 +2,7 @@
 
 ## Run and validate
 
-Use Node 24 or later. Run `npm ci`, `npm test`, `npm run build`, then `npm start`. Tests use an isolated in-memory SQLite database and mock Groq responses; they do not call paid services or modify the live database. The server health response includes `version: "2.0"`.
+Use Node 24 or later. Run `npm ci`, `npm test`, `npm run build`, then `npm start`. Tests use an isolated in-memory SQLite database and mock Groq responses; they do not call paid services or modify the live database. The server health response includes `version: "2.1"`. See [the workspace guide](RESOURCE-WORKSPACE.md) for the search-first home, engineer role and uploads.
 
 ## Free AI setup (Groq)
 
@@ -20,7 +20,7 @@ For local development, copy `.env.example` to `.env`, fill it locally, then run 
 
 ## Maritime visual theme
 
-The blue-and-white interface draws on [Seatrium's maritime engineering and people-focused values](https://www.seatrium.com/). Navy navigation, white work surfaces, blue primary actions and semantic incident colors replace the earlier neon glass theme. Login and Command Center use original SVG artwork of shipyard cranes, a vessel and engineers reviewing plans. The illustration is bundled locally, requires no image service or license subscription, and does not depict actual personnel. The SEATRIUM text identifies the concept's context; it is not an official logo reproduction or endorsement. Mobile layouts and reduced-motion preferences are supported.
+The blue-and-white interface draws on [Seatrium's maritime engineering and people-focused values](https://www.seatrium.com/). Navy navigation, white work surfaces, blue primary actions and semantic incident colors replace the earlier neon glass theme. Login and Command Center use original SVG artwork of shipyard cranes, a vessel and engineers reviewing plans. The illustration is bundled locally and does not depict actual personnel. Official Seatrium logo assets identify the demo context on login, navigation and search; they do not imply endorsement. See [asset provenance](BRAND-ASSETS.md). Mobile layouts and reduced-motion preferences are supported.
 
 ## Classification and roles
 

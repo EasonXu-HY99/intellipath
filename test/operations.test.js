@@ -38,6 +38,162 @@ before(async () => {
 });
 after(() => server.close());
 
+test("workspace migration preserves demo locations and adds an engineer without admin permissions", async () => {
+  const { migrateWorkspace } = await import("../server/workspace.js");
+  const before = db.prepare("SELECT COUNT(*) n FROM knowledge_records").get().n;
+  migrateWorkspace(db);
+  assert.equal(
+    db.prepare("SELECT COUNT(*) n FROM knowledge_records").get().n,
+    before,
+  );
+  const login = await (
+    await call("/auth/login", null, {
+      username: "engineer",
+      password: "Engineer@2026",
+    })
+  ).json();
+  assert.equal(login.user.cyber_level, 4);
+  assert.ok(login.user.permissions.includes("files.upload"));
+  assert.ok(!login.user.permissions.includes("users"));
+  const directory = await (await call("/people", login.token)).json();
+  assert.ok(directory.people.some((p) => p.floor && p.building && p.room));
+  assert.ok(directory.people.every((p) => p.required_level <= 4));
+  const located = await (
+    await call("/search?q=Engineering%20Block%20A&kind=Person", login.token)
+  ).json();
+  assert.ok(
+    located.results.some((p) => p.person.building === "Engineering Block A"),
+  );
+});
+
+test("agent discovery delegates to scoped specialists and source filters remain effective", async () => {
+  const discover = await (
+    await call("/search?kind=Agent", viewer.token)
+  ).json();
+  assert.equal(discover.total, 5);
+  const result = await (
+    await call("/agents/search", viewer.token, {
+      q: "",
+      agentId: "AGENT-DOCS",
+      source: "sharepoint",
+    })
+  ).json();
+  assert.equal(result.plan.length, 1);
+  assert.equal(result.plan[0].id, "AGENT-DOCS");
+  assert.ok(result.results.length > 0);
+  assert.ok(
+    result.results.every(
+      (r) =>
+        r.kind === "Document" &&
+        r.required_level === 1 &&
+        r.source_id === "sharepoint",
+    ),
+  );
+  assert.ok(result.results.every((r) => r.foundBy.length > 0));
+  assert.equal(
+    (
+      await call("/agents/search", viewer.token, {
+        agentId: "untrusted-external-agent",
+      })
+    ).status,
+    400,
+  );
+  const routed = await (
+    await call("/agents/search", viewer.token, { q: "engineer" })
+  ).json();
+  assert.deepEqual(
+    routed.plan.map((p) => p.id),
+    ["AGENT-PEOPLE"],
+  );
+});
+
+test("engineer upload is searchable, byte-identical on download and classified before all reads", async () => {
+  const engineer = await (
+    await call("/auth/login", null, {
+      username: "engineer",
+      password: "Engineer@2026",
+    })
+  ).json();
+  const content = "Pump inspection note: calibration-check-xyz. 检查轴承。";
+  const payload = {
+    filename: "inspection.md",
+    data: Buffer.from(content).toString("base64"),
+    description: "Engineering upload regression",
+    required_level: 4,
+    site: "Pioneer Yard",
+    destination: "onedrive_demo",
+  };
+  assert.equal(
+    (await call("/files/upload", viewer.token, payload)).status,
+    403,
+  );
+  const response = await call("/files/upload", engineer.token, payload);
+  assert.equal(response.status, 201);
+  const { file } = await response.json();
+  assert.equal(file.storage, "IntelliPath");
+  assert.match(file.syncStatus, /not sent to OneDrive/);
+  try {
+    const found = await (
+      await call("/search?q=calibration-check-xyz", engineer.token)
+    ).json();
+    assert.equal(found.results[0].id, file.id);
+    const downloaded = await call(
+      `/documents/${file.id}/download`,
+      engineer.token,
+    );
+    assert.equal(downloaded.headers.get("x-content-type-options"), "nosniff");
+    assert.equal(await downloaded.text(), content);
+    for (const path of [
+      `/documents/${file.id}/download`,
+      `/records/${file.id}`,
+    ])
+      assert.equal((await call(path, viewer.token)).status, 404);
+    const hidden = await (
+      await call("/search?q=calibration-check-xyz", viewer.token)
+    ).json();
+    assert.equal(hidden.total, 0);
+    const agent = await (
+      await call("/agents/search", viewer.token, {
+        q: "calibration-check-xyz",
+        agentId: "AGENT-DOCS",
+      })
+    ).json();
+    assert.equal(agent.total, 0);
+  } finally {
+    db.prepare("DELETE FROM uploads WHERE id=?").run(file.id);
+    db.prepare("DELETE FROM knowledge_records WHERE id=?").run(file.id);
+  }
+  for (const bad of [
+    { filename: "../escape.txt" },
+    { filename: "script.html" },
+    { data: "not valid base64!" },
+    { required_level: 7 },
+    { destination: "real_onedrive" },
+  ])
+    assert.equal(
+      (await call("/files/upload", engineer.token, { ...payload, ...bad }))
+        .status,
+      400,
+    );
+  const { saveUpload } = await import("../server/workspace.js");
+  assert.throws(
+    () =>
+      saveUpload(db, engineer.user, {
+        ...payload,
+        data: Buffer.alloc(5 * 1024 * 1024 + 1).toString("base64"),
+      }),
+    /5 MB/,
+  );
+  const large = saveUpload(db, engineer.user, {
+    ...payload,
+    filename: "large.txt",
+    data: Buffer.alloc(1024 * 1024, 65).toString("base64"),
+  });
+  assert.equal(large.size, 1024 * 1024);
+  db.prepare("DELETE FROM uploads WHERE id=?").run(large.id);
+  db.prepare("DELETE FROM knowledge_records WHERE id=?").run(large.id);
+});
+
 test("reports exclude incidents created after the selected reporting day", () => {
   const r = buildReport(
     snapshot(db, admin.user),
@@ -79,7 +235,7 @@ test("migration is additive and idempotent", () => {
   const before = counts();
   migrateOperations(db);
   assert.deepEqual(counts(), before);
-  assert.equal(before[2], 525);
+  assert.equal(before[2], 540);
   assert.equal(admin.user.cyber_level, 7);
   assert.equal(viewer.user.cyber_level, 1);
 });
