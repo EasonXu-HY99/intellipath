@@ -40,7 +40,7 @@ export default function Audit() {
   return (
     <div>
       <SectionTitle
-        title="Logs & Audit"
+        title="Activity Log"
         subtitle="Track operational activity, AI actions, device events, and enterprise system records."
         icon={ScrollText}
         action={<GhostButton onClick={exportLogs}><span className="inline-flex items-center gap-2"><Download className="w-4 h-4" /> Export</span></GhostButton>}

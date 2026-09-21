@@ -5,7 +5,7 @@ import { db, getSessionUser } from "./db.js";
 // frontend so nav items and controls can be toggled by the same rules.
 export const ROLES = {
   admin: {
-    label: "Administrator",
+    label: "Admin",
     permissions: [
       "overview",
       "ai",
@@ -20,7 +20,7 @@ export const ROLES = {
     ],
   },
   manager: {
-    label: "Operations Manager",
+    label: "Manager",
     permissions: [
       "overview",
       "ai",
@@ -34,7 +34,7 @@ export const ROLES = {
     ],
   },
   analyst: {
-    label: "Security Analyst",
+    label: "Analysis",
     permissions: [
       "overview",
       "ai",

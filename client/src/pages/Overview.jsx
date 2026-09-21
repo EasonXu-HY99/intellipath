@@ -1,4 +1,4 @@
-import MaritimeScene from "../components/MaritimeScene.jsx";
+import { accessName } from "../../../shared/access.js";
 import { useState } from "react";
 import {
   Activity,
@@ -55,7 +55,7 @@ export default function Overview() {
   return (
     <div>
       <SectionTitle
-        title="Command Center"
+        title="Cybersecurity Center"
         subtitle="Your security operations brief: exposure, incidents and the work required to recover."
         icon={Activity}
         action={
@@ -94,17 +94,17 @@ export default function Overview() {
             <span>PEOPLE &amp; SAFETY</span>
           </div>
         </div>
-        <MaritimeScene className="hero-scene" />
+        <img src="/images/shipyard-dawn.png" alt="" className="security-hero-photo" />
       </section>
       <div className="scope-banner">
         <span>DEMO WORKSPACE · SINGAPORE</span>
         <span>
-          Server-enforced visibility: L1–L{s?.level ?? "…"} · Snapshot{" "}
+          Access group: {accessName(s?.level)} · Snapshot{" "}
           {data?.generatedAt
             ? new Date(data.generatedAt).toLocaleTimeString()
             : ""}
         </span>
-        <button onClick={reload} aria-label="Refresh command center">
+        <button onClick={reload} aria-label="Refresh cybersecurity center">
           <RefreshCw size={15} />
         </button>
       </div>
@@ -148,7 +148,7 @@ export default function Overview() {
               tone="amber"
             />
           </div>
-          <div className="grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-5">
+          <div className="grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-5 items-start">
             <GlassCard className="p-5">
               <h2 className="font-display text-lg font-semibold">
                 Incident watchlist
@@ -171,7 +171,7 @@ export default function Overview() {
                       <div className="flex flex-wrap justify-between gap-2">
                         <span className="severity-tag">{r.severity}</span>
                         <span className="text-xs text-slate-600">
-                          {r.id} · L{r.required_level}
+                          {r.id} · {accessName(r.required_level)}
                         </span>
                       </div>
                       <h3 className="font-medium mt-2">{r.title}</h3>

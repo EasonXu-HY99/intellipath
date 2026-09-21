@@ -1,3 +1,4 @@
+import { accessName } from "../../../shared/access.js";
 import { useState } from "react";
 import {
   Boxes,
@@ -204,7 +205,7 @@ export default function Resources() {
       x.location,
       x.permission,
       x.health,
-      `Level ${x.required_level}`,
+      accessName(x.required_level),
       x.accessResult,
       x.request_status,
     ]);
@@ -219,7 +220,7 @@ export default function Resources() {
         "Location",
         "Permission",
         "Health",
-        "Required Level",
+        "Minimum role",
         "Access",
         "Request Status",
       ],
@@ -244,8 +245,8 @@ export default function Resources() {
   return (
     <div>
       <SectionTitle
-        title="Resource Tracking"
-        subtitle="Track devices, permission ownership, cybersecurity level, request status, and approval flow."
+        title="Asset Inventory"
+        subtitle="Track devices, permission ownership, access role, request status, and approval flow."
         icon={Boxes}
         action={
           canWrite && (
@@ -287,9 +288,9 @@ export default function Resources() {
           />
           <Metric
             icon={Lock}
-            title="Highest Level"
-            value={rc?.highestLevel}
-            note="Level 7 can access Level 7 and below"
+            title="Highest Access Role"
+            value={accessName(rc?.highestLevel)}
+            note="Admin can access every access group"
             tone="violet"
           />
           <Metric
@@ -306,16 +307,13 @@ export default function Resources() {
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5">
           <div>
             <h2 className="font-display font-semibold text-slate-900">
-              Cybersecurity Level Rule
+              Access roles
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Your account is L{account.cyber_level}: records L1 through L
-              {account.cyber_level} are visible. L7 is highest; L1 sees only L1.
-              Role permissions separately control actions. This applies to
-              search, AI, reports and exports.
+              Your access role is {accessName(account.cyber_level)}. Admin has the broadest access, followed by Manager, Analysis, Engineer and Viewer. Records assigned to your role and lower access groups are visible across search, AI, reports and exports.
             </p>
           </div>
-          <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
             {(rules.data?.rules || []).map((rule) => (
               <div
                 key={rule.level}
@@ -323,10 +321,10 @@ export default function Resources() {
                 className={`p-3 rounded-xl glass-soft text-center ${rule.level > account.cyber_level ? "opacity-35" : "border-cyan-400/30"}`}
               >
                 <p className="font-display font-bold text-slate-900">
-                  L{rule.level}
+                  {accessName(rule.level)}
                 </p>
                 <p className="text-[10px] text-slate-500 mt-1">
-                  ≤ {rule.level}
+                  {rule.level <= account.cyber_level ? "Visible" : "Restricted"}
                 </p>
               </div>
             ))}
@@ -341,7 +339,7 @@ export default function Resources() {
               Device & Permission Registry
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Ownership, permission, required level, health, and access result
+              Ownership, permission, minimum access role, health, and access result
               for {user?.name || "the selected user"}.
             </p>
           </div>
@@ -366,7 +364,7 @@ export default function Resources() {
                 <option value="">My account clearance</option>
                 {(people.data?.people || []).map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} (L{p.cyber_level})
+                    {p.name} ({accessName(p.cyber_level)})
                   </option>
                 ))}
               </select>
@@ -405,8 +403,8 @@ export default function Resources() {
                     "Location",
                     "Permission",
                     "Health",
-                    "Req. Level",
-                    "User Level",
+                    "Minimum Role",
+                    "Access role",
                     "Access",
                     "Request",
                   ].map((h) => (
@@ -445,11 +443,11 @@ export default function Resources() {
                       </td>
                       <td className="p-4">
                         <span className="font-semibold text-slate-900">
-                          L{x.required_level}
+                          {accessName(x.required_level)}
                         </span>
                       </td>
                       <td className="p-4">
-                        <span className="text-slate-700">L{x.userLevel}</span>
+                        <span className="text-slate-700">{accessName(x.userLevel)}</span>
                       </td>
                       <td className="p-4">
                         <StatusBadge status={allowed ? "Allowed" : "Denied"} />
@@ -567,39 +565,13 @@ export default function Resources() {
           <h3 className="font-display font-semibold text-slate-900 mb-4">
             Access Statement
           </h3>
-          {user ? (
-            <div className="p-4 rounded-2xl glass-soft mb-4 text-sm text-slate-700">
-              <p>
-                <span className="text-slate-500">User:</span> {user.name}
-              </p>
-              <p className="mt-1">
-                <span className="text-slate-500">User Level:</span> Level{" "}
-                {user.cyber_level}
-              </p>
-              <p className="mt-1">
-                <span className="text-slate-500">Resource:</span> Pump Unit-A12
-              </p>
-              <p className="mt-1">
-                <span className="text-slate-500">Required Level:</span> Level 6
-              </p>
-              <p className="mt-1">
-                <span className="text-slate-500">Access Result:</span>{" "}
-                <span
-                  className={
-                    user.cyber_level >= 6 ? "text-emerald-700" : "text-rose-700"
-                  }
-                >
-                  {user.cyber_level >= 6 ? "Allowed" : "Denied"}
-                </span>
-              </p>
-            </div>
-          ) : null}
+          {user && <p className="p-4 rounded-xl glass-soft mb-4 text-sm">{user.name} · {accessName(user.cyber_level)} access</p>}
           <h3 className="font-display font-semibold text-slate-900 mb-3">
             AI Insight
           </h3>
           <p className="text-sm text-slate-500">
             {user
-              ? `${user.name} can access records classified L1 through L${user.cyber_level}. The registry and every export remain limited to your signed-in account clearance (L${account.cyber_level}).`
+              ? `${user.name} has ${accessName(user.cyber_level)} access. This preview never expands your signed-in ${accessName(account.cyber_level)} access to records or exports.`
               : "Select a user to see their access posture."}
           </p>
         </GlassCard>
@@ -620,7 +592,7 @@ export default function Resources() {
                 <option value="">Select resource…</option>
                 {(res.data?.resources || []).map((x) => (
                   <option key={x.id} value={x.id}>
-                    {x.name} (Level {x.required_level})
+                    {x.name} ({accessName(x.required_level)})
                   </option>
                 ))}
               </select>
@@ -634,7 +606,7 @@ export default function Resources() {
                 <option value="">Select person…</option>
                 {(people.data?.people || []).map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} (Level {p.cyber_level})
+                    {p.name} ({accessName(p.cyber_level)})
                   </option>
                 ))}
               </select>
@@ -788,7 +760,7 @@ export default function Resources() {
                 ))}
               </select>
             </Field>
-            <Field label="Required Level">
+            <Field label="Minimum role">
               <select
                 value={r.required_level}
                 onChange={(e) =>
@@ -796,11 +768,11 @@ export default function Resources() {
                 }
                 className={fieldCls}
               >
-                {[1, 2, 3, 4, 5, 6, 7]
+                {[1, 2, 3, 4, 5]
                   .filter((n) => n <= account.cyber_level)
                   .map((n) => (
                     <option key={n} value={n}>
-                      Level {n}
+                      {accessName(n)}
                     </option>
                   ))}
               </select>

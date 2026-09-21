@@ -1,3 +1,4 @@
+import { migrateFiveRoles } from "./role-migration.js";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
@@ -155,6 +156,7 @@ ensureColumn(
 seedDatabase(db);
 migrateOperations(db);
 migrateWorkspace(db);
+migrateFiveRoles(db);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -165,9 +167,9 @@ export function canAccess(userLevel, requiredLevel) {
     Number.isInteger(userLevel) &&
     Number.isInteger(requiredLevel) &&
     requiredLevel >= 1 &&
-    requiredLevel <= 7 &&
+    requiredLevel <= 5 &&
     userLevel >= requiredLevel &&
-    userLevel <= 7
+    userLevel <= 5
   );
 }
 
@@ -238,7 +240,7 @@ export function logAudit(db, { user, action, result, category = "general" }) {
   const time = formatTimestamp();
   return db
     .prepare(
-      "INSERT INTO audit_logs (time, user, action, result, category) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO audit_logs (time, user, action, result, category, required_level) VALUES (?, ?, ?, ?, ?, 5)",
     )
     .run(time, user, action, result, category);
 }

@@ -1,3 +1,5 @@
+import { accessName } from "../../../shared/access.js";
+import OceanFleet from "../components/OceanFleet.jsx";
 import { useEffect, useRef, useState } from "react";
 import {
   Search,
@@ -35,11 +37,12 @@ const INITIAL = {
   mode: "direct",
   agentId: "",
 };
-export default function ResourceWorkspace() {
+export default function ResourceWorkspace({ uploadOpen = false, onUploadClose }) {
   const { user, hasPermission } = useAuth(),
     workspace = useApi(api.workspace),
     sites = useApi(api.getSites);
-  const [params, setParams] = useState(INITIAL),
+  const [hasSearched, setHasSearched] = useState(false),
+    [params, setParams] = useState(INITIAL),
     [applied, setApplied] = useState(INITIAL),
     [data, setData] = useState(null),
     [busy, setBusy] = useState(false),
@@ -52,6 +55,7 @@ export default function ResourceWorkspace() {
     searchInput = useRef(null);
   async function run(page = 1, overrides = {}) {
     const next = { ...params, ...overrides };
+    setHasSearched(true);
     setParams(next);
     setApplied(next);
     const id = ++seq.current;
@@ -75,7 +79,6 @@ export default function ResourceWorkspace() {
     }
   }
   useEffect(() => {
-    run();
     return () => {
       seq.current++;
     };
@@ -112,101 +115,26 @@ export default function ResourceWorkspace() {
     (a) => a.id === params.agentId,
   );
   return (
-    <div className="resource-workspace">
-      <div className="workspace-heading">
-        <div>
-          <p className="eyebrow">YOUR CONNECTED RESOURCE WORKSPACE</p>
-          <h1>Find what moves your work forward.</h1>
-          <p>People, files, devices and specialist agents — in one place.</p>
+    <div className={`resource-workspace voyage-workspace ${hasSearched ? "has-results" : "at-sea"}`}>
+      <section className="voyage-hero" aria-label="Unified resource search">
+        <OceanFleet level={user.cyber_level}/>
+        <div className="voyage-search-wrap">
+          <h1 className={hasSearched ? "voyage-result-heading" : "sr-only"}>{hasSearched ? "Your next discovery." : "Search your workspace"}</h1>
+          <form className="voyage-search-form" role="search" onSubmit={e=>{e.preventDefault();run();}}>
+            <Search className="voyage-search-icon" size={23}/>
+            <input ref={searchInput} aria-label="Search the workspace" maxLength={4000} value={params.q} onChange={e=>setParams(p=>({...p,q:e.target.value}))} placeholder="Find a person, file, device or agent…" />
+            <select aria-label="Search mode" value={params.mode} onChange={e=>setParams(p=>({...p,mode:e.target.value,agentId:"",kind:p.kind === "Agent" ? "" : p.kind}))}>
+              <option value="direct">Search</option><option value="agent">Agents</option>
+            </select>
+            <button className="voyage-submit" type="submit" disabled={busy} aria-label={busy ? "Searching" : params.mode === "agent" ? "Ask agents" : "Search"}><ArrowRight size={22}/></button>
+          </form>
+          {hasSearched && <div className="voyage-search-options">
+            <button onClick={()=>{seq.current++;setHasSearched(false);setBusy(false);setData(null);setParams(INITIAL);setApplied(INITIAL);setError(null);setNotice("");window.scrollTo(0,0);searchInput.current?.focus();}}>Back to ocean</button>
+            <span>{params.mode === "agent" ? currentAgent ? currentAgent.name : "Local specialist agents" : "People, files, equipment and knowledge"}</span>
+          </div>}
         </div>
-        <img
-          src="/brands/seatrium.svg"
-          alt="Seatrium"
-          className="workspace-brand"
-        />
-      </div>
-      <section
-        className="workspace-search"
-        aria-label="Unified resource search"
-      >
-        <div className="search-mode">
-          <button
-            aria-pressed={params.mode === "direct"}
-            onClick={() =>
-              setParams((p) => ({ ...p, mode: "direct", agentId: "" }))
-            }
-          >
-            <Search size={16} /> Search resources
-          </button>
-          <button
-            aria-pressed={params.mode === "agent"}
-            onClick={() =>
-              setParams((p) => ({
-                ...p,
-                mode: "agent",
-                kind: p.kind === "Agent" ? "" : p.kind,
-              }))
-            }
-          >
-            <Bot size={17} /> Let agents help
-          </button>
-          <span>Clearance L1–L{user.cyber_level}</span>
-        </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            run();
-          }}
-        >
-          <div className="workspace-search-input">
-            <Search size={24} />
-            <input
-              ref={searchInput}
-              aria-label="Search the workspace"
-              maxLength={4000}
-              value={params.q}
-              onChange={(e) => setParams((p) => ({ ...p, q: e.target.value }))}
-              placeholder={
-                params.mode === "agent"
-                  ? "Describe what you need — we’ll find the right specialist…"
-                  : "Find a file, colleague, device, room or agent…"
-              }
-            />
-            <button type="submit" disabled={busy}>
-              {busy
-                ? "Searching…"
-                : params.mode === "agent"
-                  ? "Ask agents"
-                  : "Search"}
-              <ArrowRight size={17} />
-            </button>
-          </div>
-        </form>
-        <div className="search-suggestions">
-          <span>TRY</span>
-          {["pump inspection", "Engineering Block A", "vessel handover"].map(
-            (q) => (
-              <button
-                key={q}
-                onClick={() => run(1, { q, kind: "", source: "", agentId: "" })}
-              >
-                {q}
-                <ArrowRight size={12} />
-              </button>
-            ),
-          )}
-        </div>
-        {params.mode === "agent" && (
-          <p className="agent-mode-note">
-            <Bot size={16} />
-            {currentAgent
-              ? `${currentAgent.name} selected.`
-              : "The coordinator discovers specialists, delegates your search and combines their results."}{" "}
-            Local agents search this workspace; Microsoft connectors are
-            demonstrations.
-          </p>
-        )}
       </section>
+      {hasSearched && <div className="voyage-content">
       <div className="workspace-toolbar">
         <div className="type-tabs" aria-label="Resource types">
           {TYPES.map(([kind, label, Icon]) => (
@@ -245,7 +173,8 @@ export default function ResourceWorkspace() {
       )}
       <div className="workspace-columns">
         <div className="min-w-0">
-          <section className="specialist-section">
+          <details className="specialist-section specialist-disclosure">
+            <summary>Explore specialist agents <Bot size={16}/></summary>
             <div className="section-label">
               <h2>Find a specialist agent</h2>
               <span>Local search capabilities</span>
@@ -277,7 +206,7 @@ export default function ResourceWorkspace() {
             {workspace.error && (
               <ErrorBox error={workspace.error} onRetry={workspace.reload} />
             )}
-          </section>
+          </details>
           <section className="workspace-results" aria-label="Search results">
             <div className="section-label">
               <h2>
@@ -350,7 +279,7 @@ export default function ResourceWorkspace() {
                       <div className="min-w-0 flex-1">
                         <div className="result-kicker">
                           <span>
-                            {record.kind} · L{record.required_level}
+                            {record.kind} · {accessName(record.required_level)}
                           </span>
                           <span>{record.status}</span>
                         </div>
@@ -478,12 +407,14 @@ export default function ResourceWorkspace() {
           </div>
         </aside>
       </div>
-      {showUpload && (
+      </div>}
+      {(showUpload || uploadOpen) && (
         <FileUpload
           sites={sites.data?.sites || []}
-          onClose={() => setShowUpload(false)}
+          onClose={() => {setShowUpload(false);onUploadClose?.();}}
           onUploaded={(file) => {
             setShowUpload(false);
+            onUploadClose?.();
             setNotice(
               `${file.filename} saved to IntelliPath. ${file.syncStatus}.`,
             );
@@ -502,7 +433,7 @@ export default function ResourceWorkspace() {
             <div className="flex justify-between items-start gap-4 mb-5">
               <div>
                 <p className="eyebrow">
-                  {selected.kind} · L{selected.required_level}
+                  {selected.kind} · {accessName(selected.required_level)}
                 </p>
                 <h2
                   id="record-title"

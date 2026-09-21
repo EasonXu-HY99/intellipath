@@ -1,3 +1,4 @@
+import { accessName } from "../../../shared/access.js";
 import { useState } from "react";
 import { UploadCloud, X } from "lucide-react";
 import { useAuth } from "../auth.jsx";
@@ -102,7 +103,7 @@ export default function FileUpload({ sites = [], onClose, onUploaded }) {
               </select>
             </label>
             <label className="setting-field">
-              Required clearance
+              Minimum access role
               <select
                 className={fieldCls}
                 value={level}
@@ -111,7 +112,7 @@ export default function FileUpload({ sites = [], onClose, onUploaded }) {
                 {Array.from({ length: user.cyber_level }, (_, i) => i + 1).map(
                   (l) => (
                     <option key={l} value={l}>
-                      L{l} and above
+                      {accessName(l)} and above
                     </option>
                   ),
                 )}

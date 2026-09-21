@@ -1,0 +1,120 @@
+/* Maritime palette: abyss #052c40, sea #086276, foam #e7f5f3,
+   signal #0876b9, ink #16374b. The ocean is the single focal point. */
+.ocean-shell { min-height:100svh; background:#f3f7fa; color:#16374b; }
+.ocean-header { position:absolute; z-index:20; top:0; left:0; right:0; height:104px; display:flex; align-items:center; justify-content:space-between; padding:0 4.5vw; color:#fff; }
+.ocean-wordmark { display:flex; align-items:center; gap:26px; text-decoration:none; color:#fff; }
+.ocean-wordmark img { width:156px; height:34px; object-fit:contain; }
+.ocean-wordmark>span { border-left:1px solid #ffffff45; padding-left:26px; font-size:16px; letter-spacing:-.4px; }
+.ocean-account { position:relative; display:flex; align-items:center; gap:26px; }
+.ocean-clearance { display:flex; align-items:center; gap:10px; font-size:12px; font-weight:600; }
+.ocean-clearance>span { font-weight:400; color:#d5e8ed; }
+.ocean-menu-toggle { width:44px; height:44px; border:1px solid #ffffff55; border-radius:50%; display:grid; place-items:center; background:#ffffff0a; transition:background .2s; }
+.ocean-menu-toggle:hover { background:#ffffff22; }
+.ocean-menu { position:absolute; top:58px; right:0; width:284px; padding:12px; background:#fcfefe; color:#183f53; border:1px solid #dce6eb; border-radius:16px; box-shadow:0 20px 70px #00192855; max-height:calc(100svh - 100px); overflow:auto; }
+.ocean-menu-person { padding:10px 12px 16px; display:flex; flex-direction:column; gap:5px; }
+.ocean-menu-person strong { font-size:15px; }.ocean-menu-person span { font-size:12px; color:#607985; }
+.ocean-menu button { width:100%; text-align:left; display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:8px; font-size:13px; }
+.ocean-menu button:hover,.ocean-menu button[aria-current] { background:#e9f2f6; color:#075d8b; }
+.ocean-menu-account { margin-top:8px; border-top:1px solid #e0e9ed; padding-top:8px; }
+.voyage-hero { position:relative; isolation:isolate; min-height:640px; height:100svh; background:#06475c; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.ocean-fleet { position:absolute; z-index:-2; inset:0; overflow:hidden; background:radial-gradient(ellipse at 84% 18%,#187c84 0%,transparent 40%),radial-gradient(ellipse at 5% 95%,#14576f 0%,transparent 48%),linear-gradient(145deg,#052b43 0%,#085369 43%,#08737b 100%); }
+.fleet-photo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 40%; }
+.fleet-backdrop { position:absolute; inset:0; background:#062b44; }
+.ocean-vignette { position:absolute; inset:0; background:linear-gradient(#00172e66 0%,transparent 25%,transparent 56%,#001c3745 78%,#00152d90); }
+.ocean-caption,.fleet-concept-note { position:absolute; bottom:28px; color:#d9e9ef; font-size:11px; line-height:1.5; }
+.ocean-caption { left:4.5vw; }.fleet-concept-note { right:4.5vw; font-size:10px; color:#b9d0dc; }
+.at-sea .voyage-search-wrap { position:absolute; top:78%; transform:translateY(-50%); }
+.voyage-search-wrap { position:relative; width:min(760px,calc(100% - 48px)); margin-top:-10px; }
+.voyage-search-form { position:relative; display:flex; align-items:center; gap:16px; padding:10px 10px 10px 25px; min-height:78px; border-radius:18px; background:#f9fcfc; box-shadow:0 22px 80px #001a3545,0 0 0 7px #ffffff12,0 1px 0 #fff inset; border:1px solid #d7e5e5; transition:box-shadow .2s; }
+.voyage-search-form:focus-within { box-shadow:0 22px 80px #001a3545,0 0 0 7px #ffffff28; }
+.voyage-search-icon { color:#507787; flex-shrink:0; }
+.voyage-search-form input { min-width:0; width:100%; flex:1; color:#17394c; font-size:16px; height:48px; background:transparent; border:0; outline:none; }
+.voyage-search-form input::placeholder { color:#6b828b; opacity:1; }
+.voyage-search-form select { border:0; border-left:1px solid #dbe6e9; color:#416777; background:transparent; padding:9px 6px 9px 15px; font-size:12px; max-width:96px; }
+.voyage-submit { display:grid; place-items:center; width:54px; height:54px; flex-shrink:0; background:#0876b9; color:#fff; border-radius:12px; transition:background .2s; }
+.voyage-submit:hover { background:#045a8f; }.voyage-submit:disabled { opacity:.6; }
+.voyage-result-heading { color:#fff; font-size:32px; font-weight:500; letter-spacing:-1px; margin:0 0 24px; }
+.has-results .voyage-hero { height:350px; min-height:350px; align-items:flex-end; padding-bottom:40px; }
+.has-results .voyage-search-wrap { width:min(880px,calc(100% - 48px)); margin:0; }
+.has-results .ocean-caption,.has-results .fleet-concept-note { display:none; }
+.has-results .fleet-photo { opacity:.25; object-position:center 30%; }
+.voyage-search-options { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:16px; font-size:12px; color:#c8e3e8; }
+.voyage-search-options button { color:#fff; text-decoration:underline; text-underline-offset:4px; }
+.voyage-content { max-width:1380px; margin:auto; padding:30px 4.5vw 60px; }
+.voyage-content .workspace-toolbar { margin-bottom:28px; }
+.specialist-disclosure { margin-bottom:24px; padding:16px 18px; background:white; border:1px solid #dde7ed; border-radius:12px; }
+.specialist-disclosure summary { cursor:pointer; font-size:13px; color:#47697c; list-style:disclosure-closed inside; }
+.specialist-disclosure summary svg { display:inline-block; float:right; }.specialist-disclosure[open] summary { margin-bottom:20px; }
+.voyage-content .workspace-result { border-radius:10px; box-shadow:none; }.voyage-content .workspace-result:hover { background:#f7fbfd; }
+.voyage-content .workspace-sources { background:transparent; border:0; box-shadow:none; padding-top:6px; }
+.harbor-login { min-height:100svh; display:grid; grid-template-columns:1.3fr 1fr; background:#fff; }
+.harbor-story { position:relative; isolation:isolate; overflow:hidden; background:#06475c; color:#fff; display:flex; flex-direction:column; min-height:800px; padding:48px; }
+.harbor-photo { position:absolute; z-index:-3; inset:0; background:url('/images/shipyard-dawn.png') center/cover no-repeat; }
+.harbor-shade { position:absolute; z-index:-1; inset:0; background:linear-gradient(180deg,#001d3a44 0%,#022d4110 35%,#032538c9 75%,#022336f0 100%); }
+.harbor-logo { width:195px; height:auto; filter:drop-shadow(0 2px 8px #00253660); }
+.harbor-story-copy { margin-top:auto; padding-top:280px; padding-bottom:60px; }
+.harbor-story-copy>p { font-size:13px; color:#d7e8e9; margin:0 0 20px; }
+.harbor-story-copy h1 { font-family:'Segoe UI',sans-serif; font-size:clamp(34px,3.6vw,61px); line-height:1.13; font-weight:400; letter-spacing:-2px; margin:0 0 26px; }
+.harbor-story-copy>span { font-size:15px; line-height:1.8; color:#d4e3e7; }
+.harbor-story-footer { display:flex; justify-content:space-between; gap:24px; font-size:10px; color:#b7cbd5; }
+.harbor-form-panel { padding:50px clamp(32px,6vw,110px) 30px; display:flex; flex-direction:column; justify-content:space-between; gap:42px; min-width:0; }
+.harbor-product { display:flex; gap:12px; align-items:center; color:#164266; font-size:20px; font-weight:600; letter-spacing:-.6px; }
+.harbor-monogram { display:grid; place-items:center; width:34px; height:34px; border:1px solid #a9c6d4; border-radius:9px; font-size:21px; font-weight:500; }
+.harbor-form-content { width:100%; max-width:420px; margin:auto; }
+.harbor-form-content h2 { font-size:clamp(28px,2.6vw,39px); letter-spacing:-1.2px; font-weight:500; color:#173c54; margin:0 0 10px; }
+.harbor-form-content>p { font-size:14px; color:#6b818e; margin:0 0 36px; }
+.harbor-form { display:flex; flex-direction:column; gap:10px; }
+.harbor-form>label { font-size:12px; color:#325367; font-weight:600; }
+.harbor-input { display:flex; align-items:center; gap:12px; border:1px solid #d6e1e7; border-radius:9px; padding:0 15px; color:#8aa0ac; margin-bottom:12px; background:#fafcfd; }
+.harbor-input:focus-within { border-color:#0876b9; box-shadow:0 0 0 3px #0876b913; }
+.harbor-input input { min-width:0; width:100%; height:52px; color:#193e56; outline:none; font-size:14px; background:transparent; border:0; }
+.harbor-input input::placeholder { color:#899ba5; }
+.harbor-signin { display:flex; align-items:center; justify-content:center; gap:15px; height:53px; border-radius:9px; background:#0876b9; color:#fff; font-size:14px; font-weight:600; margin-top:5px; transition:background .2s; }
+.harbor-signin:hover { background:#065a8d; }.harbor-signin:disabled { background:#7d9fac; }
+.harbor-error { color:#b63d37; font-size:13px; padding:12px; background:#fff0ee; border-radius:8px; }
+.harbor-demo { margin-top:30px; border-top:1px solid #e0e8eb; padding-top:22px; }
+.harbor-demo summary { cursor:pointer; display:flex; align-items:center; gap:9px; font-size:12px; color:#65808d; }.harbor-demo summary::after { content:'+'; margin-left:auto; }.harbor-demo[open] summary::after { content:'−'; }
+.harbor-demo-accounts { display:flex; flex-wrap:wrap; gap:8px; margin-top:15px; }
+.harbor-demo-accounts button { display:flex; align-items:center; gap:12px; border:1px solid #dde6eb; border-radius:7px; padding:8px 10px; font-size:11px; color:#466577; background:#fff; }
+.harbor-demo-accounts button span { font-size:10px; color:#8ba0aa; }
+.harbor-demo-accounts button:hover,.harbor-demo-accounts button[aria-pressed=true] { background:#eaf4fa; color:#05669d; border-color:#9dc8dc; }
+.harbor-demo>p { font-size:11px; color:#7d929e; margin:13px 0 0; line-height:1.6; }
+.harbor-form-footer { display:flex; gap:9px; align-items:flex-start; font-size:10px; line-height:1.8; color:#7d929e; }
+.ocean-shell :is(button,a,select):focus-visible,.harbor-login :is(button,summary,a):focus-visible { outline:3px solid #5bc1e4; outline-offset:4px; }
+@media (min-width:1600px) { .harbor-story { padding:64px; }.harbor-login { grid-template-columns:1.45fr 1fr; } }
+@media (max-width:900px) {
+  .harbor-login { grid-template-columns:1fr 1fr; }.harbor-story { padding:30px; }.harbor-form-panel { padding:36px 28px 24px; }
+  .harbor-story-copy h1 { font-size:38px; }.harbor-story-footer { flex-direction:column; gap:5px; }
+}
+@media (max-width:600px) {
+  .ocean-header { height:82px; padding:0 22px; }.ocean-wordmark { gap:14px; }.ocean-wordmark img { width:115px; height:26px; }.ocean-wordmark>span { font-size:12px; padding-left:14px; }
+  .ocean-account { gap:12px; }.ocean-clearance>span { display:none; }.ocean-menu-toggle { width:37px; height:37px; }
+  .voyage-hero { min-height:540px; }.voyage-search-wrap { width:calc(100% - 36px); }
+  .voyage-search-form { min-height:66px; padding:8px; gap:8px; border-radius:14px; box-shadow:0 15px 60px #001a3550,0 0 0 4px #ffffff15; }
+  .voyage-search-icon { display:none; }.voyage-search-form input { font-size:14px; padding-left:9px; height:44px; }.voyage-search-form input::placeholder { font-size:12px; }
+  .voyage-search-form select { max-width:68px; padding:8px 0 8px 5px; font-size:10px; }.voyage-submit { width:43px; height:44px; border-radius:9px; }
+  .fleet-position { width:84px; }.ocean-caption { bottom:25px; left:22px; }.fleet-explanation { display:none; }.ocean-motion { right:16px; bottom:18px; font-size:10px; }
+  .has-results .voyage-hero { height:295px; min-height:295px; padding-bottom:25px; }.has-results .voyage-search-wrap { width:calc(100% - 36px); }.voyage-result-heading { font-size:26px; margin-bottom:22px; }.voyage-search-options { font-size:10px; }.voyage-search-options span { text-align:right; max-width:65%; }
+  .voyage-content { padding:24px 18px 45px; }.voyage-content .workspace-columns { display:block; }.voyage-content .workspace-sources { margin-top:30px; }
+  .harbor-login { display:flex; flex-direction:column; }.harbor-story { min-height:285px; padding:25px; }.harbor-logo { width:142px; }.harbor-photo { background-position:55% 40%; }.harbor-shade { background:linear-gradient(#032a4130,#032538c9); }
+  .harbor-story-copy { padding-top:70px; padding-bottom:0; }.harbor-story-copy>p,.harbor-story-copy>span,.harbor-story-footer { display:none; }.harbor-story-copy h1 { font-size:32px; line-height:1.15; letter-spacing:-1px; margin-bottom:0; }
+  .harbor-form-panel { padding:32px 26px 28px; gap:30px; }.harbor-product { display:none; }.harbor-form-content h2 { font-size:30px; }.harbor-form-content>p { margin-bottom:27px; }.harbor-form-footer { margin-top:8px; }
+}
+.people-filters { grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); }
+.people-filters select:disabled { opacity:.45; cursor:not-allowed; }
+.security-hero-photo { position:absolute; right:0; top:0; width:53%; height:100%; object-fit:cover; object-position:center 42%; mask-image:linear-gradient(90deg,transparent,#000 22%); }
+@media (max-width:600px) { .security-hero-photo { width:50%; opacity:.3; }.operations-hero .hero-copy { position:relative; z-index:1; } }
+.location-mode-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:22px 0 18px; }
+.location-mode-tabs button { display:flex; gap:7px; align-items:center; padding:9px 12px; border:1px solid #d7e5eb; border-radius:8px; font-size:12px; color:#47697c; }
+.location-mode-tabs button[aria-pressed=true] { background:#e7f2f8; color:#076ba4; border-color:#b2d7e8; }
+.person-yard-map { width:100%; height:330px; border:1px solid #d9e6ed; border-radius:12px; }
+.location-record { margin-top:15px; font-size:12px; line-height:1.7; color:#637e8d; }.location-record strong { color:#2b556d; }.location-record p { margin-top:5px; }
+.location-empty { display:flex; gap:12px; align-items:center; background:#f3f7fa; border-radius:10px; padding:22px; font-size:13px; line-height:1.7; color:#607c8a; }
+
+@media (max-width:600px) {
+ .sunrise-fleet .fleet-backdrop { background:linear-gradient(#0b395399,#032239),var(--fleet-image) center/cover; filter:blur(12px); inset:-25px; }
+ .sunrise-fleet .fleet-photo { top:18%; width:100%; height:auto; object-fit:contain; mask-image:linear-gradient(transparent,#000 8%,#000 75%,transparent); }
+ .at-sea .voyage-search-wrap { top:65%; }
+ .ocean-caption { left:22px; bottom:24px; }.fleet-concept-note { right:22px; bottom:24px; font-size:9px; }
+ .has-results .sunrise-fleet .fleet-photo { top:0; height:100%; object-fit:cover; }
+}

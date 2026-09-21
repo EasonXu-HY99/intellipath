@@ -1,3 +1,4 @@
+import { accessName, roleName } from "../../../shared/access.js";
 import { useState } from "react";
 import {
   Users as UsersIcon,
@@ -20,9 +21,9 @@ import {
 } from "../components/ui.jsx";
 
 const ROLES = [
-  { id: "admin", label: "Administrator" },
-  { id: "manager", label: "Operations Manager" },
-  { id: "analyst", label: "Security Analyst" },
+  { id: "admin", label: "Admin" },
+  { id: "manager", label: "Manager" },
+  { id: "analyst", label: "Analysis" },
   { id: "engineer", label: "Engineer" },
   { id: "viewer", label: "Viewer" },
 ];
@@ -200,7 +201,7 @@ export default function UsersPage() {
                 <tr>
                   {[
                     "User",
-                    "Role / Clearance",
+                    "Access role",
                     "Email",
                     "Created",
                     "Actions",
@@ -238,10 +239,10 @@ export default function UsersPage() {
                     <td className="p-4">
                       <span className="inline-flex items-center gap-1.5 text-slate-700">
                         <ShieldCheck className="w-4 h-4 text-cyan-700" />
-                        {u.roleLabel || u.role}
+                        {roleName(u.role)}
                       </span>
                       <select
-                        aria-label={`Clearance for ${u.username}`}
+                        aria-label={`Access role for ${u.username}`}
                         value={u.cyber_level}
                         disabled={u.id === me.id}
                         className={`${fieldCls} mt-2`}
@@ -253,16 +254,16 @@ export default function UsersPage() {
                             );
                             users.reload();
                             notify(
-                              "Clearance updated; existing sessions revoked.",
+                              "Role updated; existing sessions revoked.",
                             );
                           } catch (err) {
                             notify(err.message, "error");
                           }
                         }}
                       >
-                        {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+                        {[1, 2, 3, 4, 5].map((n) => (
                           <option value={n} key={n}>
-                            L{n} — records L1–L{n}
+                            {accessName(n)}
                           </option>
                         ))}
                       </select>
