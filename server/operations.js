@@ -1,3 +1,4 @@
+import { agentRecords, sourceFor } from "./workspace.js";
 import { SITES } from "./sites.js";
 
 export const DEFAULT_SETTINGS = Object.freeze({
@@ -88,7 +89,15 @@ export function snapshot(db, user) {
     level,
     resources,
     people,
-    records,
+    records: records.map((r) => ({
+      ...r,
+      upload:
+        db
+          .prepare(
+            "SELECT filename,size,destination,created_at FROM uploads WHERE id=?",
+          )
+          .get(r.id) || null,
+    })),
     logs,
     audit,
     requests,
@@ -97,6 +106,7 @@ export function snapshot(db, user) {
 }
 export function catalog(s) {
   return [
+    ...(s.excludeAgents ? [] : agentRecords()),
     ...s.resources.map((r) => ({
       id: r.id,
       kind: "Resource",
@@ -126,7 +136,17 @@ export function catalog(s) {
       site: p.site,
       required_level: p.required_level,
       status: p.status,
-      detail: `${p.company} | ${p.department} | ${p.assignment} | clearance L${p.cyber_level}`,
+      detail: `${p.company} | ${p.department} | ${p.assignment} | ${p.building || "Building not provided"} | ${p.floor ? `Floor ${p.floor}` : "Floor not provided"} | ${p.room || ""}`,
+      person: {
+        id: p.id,
+        name: p.name,
+        site: p.site,
+        department: p.department,
+        building: p.building,
+        floor: p.floor,
+        room: p.room,
+        location_note: p.location_note,
+      },
       content: JSON.stringify(p),
       icon: "users",
     })),
@@ -175,11 +195,21 @@ export function catalog(s) {
       content: JSON.stringify(r),
       icon: "file",
     })),
-  ];
+  ].map((r) => ({
+    ...r,
+    source_id: sourceFor(r),
+    source_mode: r.upload
+      ? "Local file"
+      : r.kind === "Agent"
+        ? "Local specialist"
+        : sourceFor(r) === "intellipath"
+          ? "Platform"
+          : "Demo source",
+  }));
 }
 export function searchRecords(
   s,
-  { q = "", kind = "", site = "", page = 1, pageSize = 20 } = {},
+  { q = "", kind = "", site = "", source = "", page = 1, pageSize = 20 } = {},
 ) {
   const tokens =
     String(q)
@@ -187,7 +217,12 @@ export function searchRecords(
       .toLowerCase()
       .match(/[\p{L}\p{N}_@.-]+/gu) || [];
   const matched = catalog(s)
-    .filter((r) => (!kind || r.kind === kind) && (!site || r.site === site))
+    .filter(
+      (r) =>
+        (!kind || r.kind === kind) &&
+        (!site || r.site === site) &&
+        (!source || r.source_id === source),
+    )
     .map((r) => {
       const title = `${r.id} ${r.title}`.toLowerCase(),
         text = `${title} ${r.site} ${r.detail} ${r.content}`.toLowerCase();
@@ -217,6 +252,7 @@ export function searchRecords(
     pageSize: size,
     levels: `L1-L${s.level}`,
     facets: {
+      sources: [...new Set(catalog(s).map((r) => r.source_id))],
       kinds: [...new Set(catalog(s).map((r) => r.kind))],
       sites: [...new Set(catalog(s).map((r) => r.site))].filter(Boolean).sort(),
     },

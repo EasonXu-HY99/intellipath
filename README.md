@@ -1,6 +1,6 @@
-# IntelliPath — Smart Operations Platform v2
+# IntelliPath — Resource Workspace v2.1
 
-Operational security workspace with enforced L1-L7 record classification, Groq Free-plan AI integration, cybersecurity PDF reports, and a searchable multi-site demo dataset. See [the v2 operations guide](docs/OPERATIONS-V2.md) for configuration, migration and validation.
+Search-first resource workspace for files, people, devices and specialist agents, with enforced L1-L7 classification, Groq Free-plan AI integration and cybersecurity PDF reports. See [the resource workspace guide](docs/RESOURCE-WORKSPACE.md) for uploads, local agent delegation and people location; [the operations guide](docs/OPERATIONS-V2.md) covers configuration and reporting.
 
 A full-stack operational intelligence dashboard for tracking enterprise
 devices, personnel, cybersecurity access levels, permission request
@@ -14,12 +14,16 @@ now a complete application with a real database, REST API, and authentication.
 
 ## Features
 
-- **Login & role-based access** — 4 seeded accounts, each with different
+- **Login & role-based access** — 5 seeded accounts, including an L4 engineer, each with different
   permissions and a different UI (navigation + actions are filtered by role)
 - **User management** — create/remove accounts, change password (admin only)
 - **Command Center** — authorized inventory metrics, incidents, alerts, remediation and daily PDF reports
 - **AI Assistant** — Groq chat completions (GPT-OSS 120B, Free plan supported) over authorized evidence, session-owned conversation context, source references and explicit local fallback
-- **Central Search** — ranked, paginated search across people, devices, documents, maintenance, incidents, alerts, remediation, locations, requests and logs; document downloads and record details
+- **Resource Workspace home** — ranked, paginated search across people, devices, files, agents, email, maintenance, incidents, alerts, remediation, locations, requests and logs; source filters, downloads and record details
+- **Agent discovery and delegation** — coordinator selects five local specialist search agents, combines authorized results and shows which agents searched and found each record; no API key needed
+- **People & Places** — site, building, floor and room filters with a schematic directory for synthetic colleagues; unknown locations remain unknown
+- **File upload** — engineer and operational roles can upload classified files up to 5 MB; UTF-8 text is indexed, binary files are searchable by metadata; original files can be downloaded
+- **Microsoft ecosystem** — Teams, OneDrive, SharePoint, Exchange, Defender and Sentinel logos illustrate demo sources; OneDrive upload target is explicitly a local-only demo
 - **Daily cybersecurity PDF** — Singapore reporting day, unresolved carry-over, severity highlights, remediation ownership/deadlines, evidence and authorized inventory appendix
 - **Singapore site directory** — five officially published sites, exact-address Google Maps selection and links; headquarters shares the Tuas Boulevard location
 - **Resource Tracking** — device registry (make/model/serial/IP/OS/health),
@@ -33,6 +37,7 @@ now a complete application with a real database, REST API, and authentication.
 
 | Username | Name          | Role               | Password       | Access |
 |----------|---------------|--------------------|----------------|--------|
+| `engineer` | Demo Engineer | Engineer | `Engineer@2026` | L4 search, AI, people/devices, upload |
 | `admin`  | Haiyang Xu    | Administrator      | `Admin@2026`   | Everything + user management |
 | `fsun`   | Feiyong Sun   | Operations Manager | `Manager@2026` | Resources (read/write), audit, settings |
 | `mlim`   | Mary Lim      | Security Analyst   | `Analyst@2026` | AI, search, audit, resources (read) |
@@ -100,7 +105,10 @@ npm start            # serves API + static frontend on :8080
 | POST   | `/api/ai/ask`                 | grounded Q&A `{ prompt, conversationId? }` | ai |
 | GET    | `/api/search?q=&kind=&site=&page=` | classified multi-type search | search |
 | GET    | `/api/records/:id`            | authorized record detail | search |
-| GET    | `/api/documents/:id/download` | downloadable demo Markdown | search |
+| GET    | `/api/documents/:id/download` | original uploaded file or seeded Markdown | search |
+| GET    | `/api/workspace`              | local agent and illustrated source directory | search |
+| POST   | `/api/agents/search`          | delegated local search with execution trace | search |
+| POST   | `/api/files/upload`           | classified file and searchable metadata | files.upload |
 | GET    | `/api/sites`                  | official Singapore site directory | authenticated |
 | GET    | `/api/reports/daily.pdf?date=YYYY-MM-DD` | cybersecurity PDF | overview |
 | PUT    | `/api/users/:id/clearance`    | change clearance; revoke target sessions | users |
@@ -111,7 +119,7 @@ npm start            # serves API + static frontend on :8080
 SQLite is provided by Node 24's built-in `node:sqlite` module — zero external
 services and zero native build steps. The database is created automatically at
 `data/intellipath.db` and seeded with demo data (140 devices, 76
-people, 525 knowledge/security records, audit + system logs, 4 accounts) on first boot.
+people, 540 knowledge/security/email records, audit + system logs, 5 accounts) on first boot.
 New synthetic records use DEMO IDs and example.invalid addresses. They are not actual Seatrium incident, employee or telemetry records.
 
 Reset demo data at any time:

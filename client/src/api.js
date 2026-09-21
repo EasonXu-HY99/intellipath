@@ -59,6 +59,9 @@ export const api = {
     request("/users", { method: "POST", body: JSON.stringify(payload) }),
   deleteUser: (id) => request(`/users/${id}`, { method: "DELETE" }),
 
+  workspace: () => request("/workspace"),
+  agentSearch: (payload) => request("/agents/search", {method:"POST",body:JSON.stringify(payload)}),
+  uploadFile: (payload) => request("/files/upload", {method:"POST",body:JSON.stringify(payload)}),
   // Data
   getHealth: () => request("/health"),
   getMetrics: () => request("/metrics"),
