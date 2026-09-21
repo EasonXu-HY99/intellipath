@@ -1,3 +1,4 @@
+import { accessName } from "../shared/access.js";
 import { agentRecords, sourceFor } from "./workspace.js";
 import { SITES } from "./sites.js";
 
@@ -10,7 +11,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   sessionHours: 24,
 });
 export const severityRank = { info: 0, warning: 1, high: 2, critical: 3 };
-export const validLevel = (v) => Number.isInteger(v) && v >= 1 && v <= 7;
+export const validLevel = (v) => Number.isInteger(v) && v >= 1 && v <= 5;
 export function settings(db) {
   const raw = db
     .prepare("SELECT value FROM settings WHERE key='operations.v2'")
@@ -136,7 +137,7 @@ export function catalog(s) {
       site: p.site,
       required_level: p.required_level,
       status: p.status,
-      detail: `${p.company} | ${p.department} | ${p.assignment} | ${p.building || "Building not provided"} | ${p.floor ? `Floor ${p.floor}` : "Floor not provided"} | ${p.room || ""}`,
+      detail: `${p.company} | ${p.department} | ${p.assignment} | ${p.building || "Building not provided"} | ${p.floor ? `Floor ${p.floor}` : "Floor not provided"} | ${p.room || p.outdoor_zone || ""}`,
       person: {
         id: p.id,
         name: p.name,
@@ -146,6 +147,7 @@ export function catalog(s) {
         floor: p.floor,
         room: p.room,
         location_note: p.location_note,
+        location_mode: p.location_mode, outdoor_zone: p.outdoor_zone, latitude: p.latitude, longitude: p.longitude, location_updated_at: p.location_updated_at,
       },
       content: JSON.stringify(p),
       icon: "users",
@@ -250,7 +252,7 @@ export function searchRecords(
     total: matched.length,
     page: current,
     pageSize: size,
-    levels: `L1-L${s.level}`,
+    levels: accessName(s.level),
     facets: {
       sources: [...new Set(catalog(s).map((r) => r.source_id))],
       kinds: [...new Set(catalog(s).map((r) => r.kind))],

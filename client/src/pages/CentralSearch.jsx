@@ -1,3 +1,4 @@
+import { accessName } from "../../../shared/access.js";
 import { useEffect, useRef, useState } from "react";
 import { Search, X, Download, FileText } from "lucide-react";
 import { api, download } from "../api.js";
@@ -133,7 +134,7 @@ export default function CentralSearch() {
                     {r.kind} · {r.id}
                   </span>
                   <span className="text-cyan-700 shrink-0">
-                    L{r.required_level}
+                    {accessName(r.required_level)}
                   </span>
                 </div>
                 <h3 className="text-slate-900 font-medium mt-2">{r.title}</h3>
@@ -187,7 +188,7 @@ export default function CentralSearch() {
             <div className="flex justify-between gap-4">
               <div>
                 <p className="text-xs text-cyan-700">
-                  {selected.kind} · L{selected.required_level} · {selected.id}
+                  {selected.kind} · {accessName(selected.required_level)} · {selected.id}
                 </p>
                 <h2 className="text-xl font-semibold mt-2">{selected.title}</h2>
               </div>

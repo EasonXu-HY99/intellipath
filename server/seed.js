@@ -1,3 +1,4 @@
+import { migrateFiveRoles } from "./role-migration.js";
 import { migrateWorkspace } from "./workspace.js";
 // Seed realistic demo data. Idempotent: users are seeded whenever the users
 // table is empty; the domain data (resources/people/logs/etc.) is seeded
@@ -298,6 +299,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const result = seedDatabase(db, { force: true });
   migrateOperations(db);
   migrateWorkspace(db);
+  migrateFiveRoles(db);
   console.log(`Seed ${result.seeded ? "complete" : "skipped"} -> ${DB_PATH}`);
   db.close();
 }

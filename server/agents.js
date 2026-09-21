@@ -1,3 +1,4 @@
+import { accessName } from "../shared/access.js";
 import { AGENTS } from "./workspace.js";
 import { searchRecords } from "./operations.js";
 
@@ -67,7 +68,7 @@ export function agentSearch(
     total: rows.length,
     page: current,
     pageSize: 20,
-    levels: `L1-L${s.level}`,
+    levels: accessName(s.level),
     plan: tasks.map(({ agent, found }) => ({
       id: agent.id,
       name: agent.name,

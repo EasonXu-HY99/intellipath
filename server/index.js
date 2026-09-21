@@ -1,3 +1,4 @@
+import { accessName, RANK_ROLE } from "../shared/access.js";
 import { AGENTS, SOURCES, saveUpload } from "./workspace.js";
 import { agentSearch } from "./agents.js";
 import express from "express";
@@ -57,7 +58,7 @@ app.get("/api/health", (_req, res) =>
     ok: true,
     service: "IntelliPath API",
     db: "sqlite",
-    version: "2.1",
+    version: "2.2",
     time: new Date().toISOString(),
   }),
 );
@@ -173,11 +174,11 @@ app.post("/api/users", requirePermission("users"), (req, res) => {
     ) ||
     password.length < 8 ||
     !Object.hasOwn(ROLES, role) ||
-    !validLevel(level)
+    (!validLevel(level) || level !== DEFAULT_LEVELS[role])
   )
     return res.status(400).json({
       error:
-        "Valid username, name, role, L1-L7 clearance and password (8+ characters) are required.",
+        "Valid username, name, one of the five access roles and password (8+ characters) are required.",
     });
   if (getUserByUsername(db, username))
     return res.status(409).json({ error: "Username already exists." });
@@ -189,7 +190,7 @@ app.post("/api/users", requirePermission("users"), (req, res) => {
     email: typeof email === "string" ? email : null,
   });
   db.prepare("UPDATE users SET cyber_level=? WHERE id=?").run(level, u.id);
-  audit(req, `Created account ${username} with clearance L${level}`);
+  audit(req, `Created account ${username} with ${accessName(level)} access`);
   res.status(201).json({ user: publicUser(getUserById(db, u.id)) });
 });
 app.put("/api/users/:id/clearance", requirePermission("users"), (req, res) => {
@@ -199,16 +200,16 @@ app.put("/api/users/:id/clearance", requirePermission("users"), (req, res) => {
   if (!validLevel(level))
     return res
       .status(400)
-      .json({ error: "Clearance must be an integer from 1 to 7." });
+      .json({ error: "Choose one of the five access roles." });
   if (u.id === req.user.id)
     return res
       .status(400)
       .json({ error: "Another administrator must change your clearance." });
-  db.prepare("UPDATE users SET cyber_level=? WHERE id=?").run(level, u.id);
+  db.prepare("UPDATE users SET cyber_level=?,role=? WHERE id=?").run(level, RANK_ROLE[level], u.id);
   db.prepare("DELETE FROM sessions WHERE user_id=?").run(u.id);
   audit(
     req,
-    `Changed ${u.username} clearance from L${u.cyber_level} to L${level}; revoked sessions`,
+    `Changed ${u.username} role from ${accessName(u.cyber_level)} to ${accessName(level)}; revoked sessions`,
   );
   res.json({ user: publicUser(getUserById(db, u.id)) });
 });
@@ -440,7 +441,7 @@ app.get(
       .type("text/markdown")
       .attachment(`${r.id}.md`)
       .send(
-        `# ${r.title}\n\nDEMO DOCUMENT | Classification L${r.required_level}\n\nSite: ${r.site}\nOwner: ${r.owner}\nUpdated: ${r.updated_at}\n\n${r.content}\n`,
+        `# ${r.title}\n\nDEMO DOCUMENT | Classification ${accessName(r.required_level)}\n\nSite: ${r.site}\nOwner: ${r.owner}\nUpdated: ${r.updated_at}\n\n${r.content}\n`,
       );
   },
 );
@@ -469,7 +470,7 @@ app.get(
       const pdf = await reportPDF(report);
       audit(
         req,
-        `Exported cybersecurity report ${report.window.day} at L${req.user.cyber_level}`,
+        `Exported cybersecurity report ${report.window.day} at ${accessName(req.user.cyber_level)}`,
       );
       res
         .type("application/pdf")

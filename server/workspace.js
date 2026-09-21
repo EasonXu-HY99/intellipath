@@ -56,8 +56,8 @@ export const AGENTS = [
   },
   {
     id: "AGENT-PEOPLE",
-    name: "People & Places Agent",
-    description: "Find colleagues by name, discipline, building and floor.",
+    name: "Human Resources Agent",
+    description: "Find colleagues by name, discipline, indoor workspace or outdoor assignment.",
     kinds: ["Person", "Location"],
     source: "teams",
     terms:

@@ -2,7 +2,7 @@
 
 ## Run and validate
 
-Use Node 24 or later. Run `npm ci`, `npm test`, `npm run build`, then `npm start`. Tests use an isolated in-memory SQLite database and mock Groq responses; they do not call paid services or modify the live database. The server health response includes `version: "2.1"`. See [the workspace guide](RESOURCE-WORKSPACE.md) for the search-first home, engineer role and uploads.
+Use Node 24 or later. Run `npm ci`, `npm test`, `npm run build`, then `npm start`. Tests use an isolated in-memory SQLite database and mock Groq responses; they do not call paid services or modify the live database. The server health response includes `version: "2.2"`. See [the workspace guide](RESOURCE-WORKSPACE.md) for the search-first home, engineer role and uploads.
 
 ## Free AI setup (Groq)
 
@@ -20,20 +20,20 @@ For local development, copy `.env.example` to `.env`, fill it locally, then run 
 
 ## Maritime visual theme
 
-The blue-and-white interface draws on [Seatrium's maritime engineering and people-focused values](https://www.seatrium.com/). Navy navigation, white work surfaces, blue primary actions and semantic incident colors replace the earlier neon glass theme. Login and Command Center use original SVG artwork of shipyard cranes, a vessel and engineers reviewing plans. The illustration is bundled locally and does not depict actual personnel. Official Seatrium logo assets identify the demo context on login, navigation and search; they do not imply endorsement. See [asset provenance](BRAND-ASSETS.md). Mobile layouts and reduced-motion preferences are supported.
+The blue-and-white interface draws on [Seatrium's maritime engineering and people-focused values](https://www.seatrium.com/). Navy navigation, white work surfaces, blue primary actions and semantic incident colors replace the earlier neon glass theme. Login and Cybersecurity Center use locally bundled photographic concept artwork of a shipyard, vessel and engineers. The search home uses a rear-view sunrise fleet. These generated images do not depict actual Seatrium personnel or facilities. Official Seatrium logo assets identify the demo context on login, navigation and search; they do not imply endorsement. See [asset provenance](BRAND-ASSETS.md). Mobile layouts preserve the full fleet; the final scene is static. See [maritime UI and migration notes](MARITIME-UI.md).
 
 ## Classification and roles
 
-Two controls apply independently:
+Two controls apply together:
 
-- Record classification: account L1 sees only L1; L2 sees L1-L2; ...; L7 sees every classification. Enforcement occurs before counts, list/detail APIs, search, AI context, reports and downloads.
-- Role permissions control routes/actions (user management, settings, write operations and AI). A high clearance does not grant an administrative action. Public site addresses are L1. Unclassified legacy audit entries default to L7 because their free text may contain sensitive names and resource details.
+- Named record scope: Viewer sees Viewer records; Engineer adds Engineer records; Analysis adds Analysis records; Manager adds Manager records; Admin sees all five groups. Enforcement precedes counts, listing/detail, search, AI context, reports and downloads.
+- Role permissions control actions such as account management, settings and resource writes. Rank is fixed by role. Public site addresses are Viewer records; new audit events default to Admin.
 
-Existing accounts migrate once to admin L7, manager L6, analyst L5, viewer L1. New accounts default by role; an administrator can set a different L1-L7 clearance. The Users page can change another account's clearance and immediately revoke that account's sessions. Self-clearance changes are blocked. People-directory clearance is distinct from account clearance; administrator person preview never expands the signed-in account's accessible data.
+Migration 3 converts existing data to five roles and revokes existing sessions. It preserves record contents and uploaded bytes. User Management changes another account's role and rank together, immediately revoking its sessions; self-role changes are blocked. Person previews never expand the signed-in account's scope. See [migration mapping](MARITIME-UI.md).
 
 ## Daily PDF
 
-Command Center downloads a real server-generated PDF. The selected date uses Singapore midnight boundaries. Sections follow the six [NIST CSF 2.0 functions](https://www.nist.gov/cyberframework): Govern, Identify, Protect, Detect, Respond, Recover. This is an operational report structure, not a claim of NIST compliance or certification.
+Cybersecurity Center downloads a real server-generated PDF. The selected date uses Singapore midnight boundaries. Sections follow the six [NIST CSF 2.0 functions](https://www.nist.gov/cyberframework): Govern, Identify, Protect, Detect, Respond, Recover. This is an operational report structure, not a claim of NIST compliance or certification.
 
 Contents include executive counts, sites/assets/exposure, permission workflows, an alert register, incident register, remediation owners/deadlines/status, daily system/audit evidence and an optional complete inventory/knowledge appendix. Critical incident headings are red, alerts amber, remediation green. All severities remain in the report regardless of dashboard threshold. Synthetic observations are explicitly labeled.
 
@@ -43,9 +43,9 @@ Daily activity includes unresolved carry-over records last updated before the en
 
 Public addresses were verified on 2026-09-20 against [Seatrium's contact directory](https://www.seatrium.com/contact.php): Admiralty, Benoi, Pioneer, Tuas and Tuas Boulevard Yard. Corporate Headquarters is co-located at Tuas Boulevard; [Seatrium Offshore Technology](https://sot.seatrium.com/contact-us/) lists 50 Gul Road (Pioneer). The directory covers officially published Singapore hub/supporting locations, not undisclosed internal offices. Crescent Yard is absent from the current directory.
 
-Selecting a site changes the Google Maps iframe query to the exact address and supplies an external Maps link. The keyless overview is a Google search embed: Google controls its marker results and availability; it is not a custom guaranteed multi-marker layer or physical access system.
+Human Resources embeds the selected colleague's illustrative outdoor pin, or the public yard address for indoor/unknown positions, and supplies an external Maps link. Indoor building/floor/room assignments remain a separate diagram. No live GPS feed is connected. The keyless overview is a Google search embed: Google controls its marker results and availability; it is not a custom guaranteed multi-marker layer or physical access system.
 
-The additive dataset supplies 105 new assets, 60 synthetic people, 105 each of documents, maintenance records, incidents, alerts and remediation, plus 105 telemetry records. Combined with the original seeds: 140 assets, 76 people, 525 knowledge/security records. Search supports ID/name/serial/IP/content matching, multi-term relevance, kind/site filters, pagination and authorized detail views. Demo documents download as actual Markdown files. Search does not require all words to appear in a single record, which fixes combined person-and-device queries.
+The additive dataset supplies 105 new assets, 60 synthetic people, 105 each of documents, maintenance records, incidents, alerts and remediation, plus 105 telemetry records. Combined with the original seeds: 140 assets, 76 people, 540 knowledge/security/email records. Search supports ID/name/serial/IP/content matching, multi-term relevance, kind/site filters, pagination and authorized detail views. Demo documents download as actual Markdown files. Search does not require all words to appear in a single record, which fixes combined person-and-device queries.
 
 ## Settings with effects
 
@@ -68,4 +68,4 @@ The repository's Render blueprint auto-deploys master. Its free-tier filesystem 
 
 ## Validation
 
-Regression tests cover all seven clearances, forged preview/direct object access, search scoping and pagination, document/PDF access, account-session revocation, settings validation/effects, Singapore date boundaries, request states, and mocked Groq evidence/history/fallback behavior. The UI is checked in desktop and 390px layouts; no horizontal document overflow is expected. PDF samples are rendered and checked for page numbers, section coverage and text bounds. Real Groq credentials and the live Render deployment require separate post-deploy verification.
+Regression tests cover all five role scopes, forged preview/direct object access, search scoping and pagination, document/PDF access, account-session revocation, settings validation/effects, Singapore date boundaries, request states, and mocked Groq evidence/history/fallback behavior. The UI is checked in desktop and 390px layouts; no horizontal document overflow is expected. PDF samples are rendered and checked for page numbers, section coverage and text bounds. Real Groq credentials and the live Render deployment require separate post-deploy verification.

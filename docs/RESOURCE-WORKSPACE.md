@@ -1,6 +1,6 @@
-# Resource Workspace v2.1
+# Resource Workspace v2.2
 
-Sign in with the **Engineer** demo preset to start at Resource Workspace. Search files, people, devices or agents; filter by type, site or illustrated application source. Select a result to inspect its record, locate a colleague or download a file. Existing Command Center, AI Assistant and security tools remain available according to role.
+Sign in with the **Engineer** demo preset to start at the ocean search landing. Search files, people, devices or agents; results then reveal filters by type, site and illustrated application source. Submit an empty search to browse. Select a result to inspect its record, locate a colleague or download a file. The top-right workspace menu provides upload, Cybersecurity Center, AI Assistant and security tools according to role. See [the maritime UI guide](MARITIME-UI.md).
 
 ## Agent search
 
@@ -10,13 +10,13 @@ The five specialists cover engineering documents/maintenance, people/places, dev
 
 ## People and locations
 
-People & Places supports name, department, assignment, building and room searches plus site/building/floor filters. Selecting a colleague shows the assigned building, floor and room. Floor buttons update the schematic; a different floor does not falsely relocate the person.
+Human Resources supports name, department, assignment, building and room searches plus site/workplace-type/building/floor filters. Selecting a colleague shows the assigned building, floor and room. Floor buttons update the schematic; a different floor does not falsely relocate the person.
 
-Sixty synthetic colleagues have illustrative assignments across the five published Singapore sites. Building names and room positions are demo data, not actual Seatrium floor plans, live presence or navigation guidance. Legacy records with no building data retain that unknown status. Google Maps links locate the published yard address separately.
+Sixty synthetic colleagues have illustrative assignments across the five published Singapore sites. Building names and room positions are demo data, not actual Seatrium floor plans, live presence or navigation guidance. Legacy records with no building data retain that unknown status. Fifteen colleagues have simulated outdoor positions with a zone and timestamp. The location panel switches between indoor assignments and a Google Maps yard view. Pins are illustrative, not verified facility coordinates or live telemetry.
 
 ## Upload and search
 
-Admin, manager, analyst and engineer roles have `files.upload`; viewers do not. The engineer defaults to L4. Files must be classified between L1 and the uploader's clearance. Search, agent results, record detail, AI evidence and original download follow the same server-side classification boundary.
+Admin, manager, analyst and engineer roles have `files.upload`; viewers do not. Access descends through Admin, Manager, Analysis, Engineer and Viewer. Files can be assigned to the uploader's role or a lower access group. Search, agent results, record detail, AI evidence and original download follow the same server-side classification boundary.
 
 - Maximum file size: 5 MB; demo storage quota: 50 MB per uploader and 100 MB in total.
 - Supported extensions: TXT, MD, CSV, JSON, PDF, DOCX, XLSX, PPTX, PNG, JPG, JPEG.
@@ -32,4 +32,4 @@ An additive, idempotent migration adds location fields, upload storage, source m
 
 ## Verification
 
-The 20-test regression suite covers classification and prior operations features plus repeatable migration, specialist delegation/source filters, upload validation, original byte downloads and viewer denial across search/detail/download. Desktop and 390px browser checks cover the search home, source icons, people floors and actual local file upload followed by agent retrieval. No real Microsoft account is connected.
+The 22-test regression suite covers classification and prior operations features plus repeatable migration, specialist delegation/source filters, upload validation, original byte downloads and viewer denial across search/detail/download. Desktop and 390px browser checks cover the search home, source icons, people floors and actual local file upload followed by agent retrieval. No real Microsoft account is connected.

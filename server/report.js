@@ -1,3 +1,4 @@
+import { accessName } from "../shared/access.js";
 import PDFDocument from "pdfkit";
 import { catalog, severityRank } from "./operations.js";
 
@@ -136,7 +137,7 @@ export function reportPDF(report) {
     doc
       .font("Helvetica")
       .fontSize(11)
-      .text(`${w.day} | Singapore (UTC+08:00) | L1-L${s.level}`, 42, 108);
+      .text(`${w.day} | Singapore (UTC+08:00) | ${accessName(s.level)}`, 42, 108);
     doc.y = 180;
     para(
       `Prepared for ${user.name} (${user.role}) | Generated ${report.generatedAt}`,
@@ -158,7 +159,7 @@ export function reportPDF(report) {
     );
     heading("02 / GOVERN - Scope and accountability");
     para(
-      `Record visibility is enforced by server-side classification: user level >= record level. Report scope: L1-L${s.level}. Hidden records, counts and contents are excluded. Role permissions govern actions separately. Each action below has an accountable team; completion requires verification evidence.`,
+      `Record visibility is enforced by server-side classification: user level >= record level. Report scope: ${accessName(s.level)}. Hidden records, counts and contents are excluded. Role permissions govern actions separately. Each action below has an accountable team; completion requires verification evidence.`,
     );
     heading("03 / IDENTIFY - Assets and exposure");
     rows(
@@ -176,7 +177,7 @@ export function reportPDF(report) {
         `Request ${r.id}: ${r.title} | ${r.overall_status}\n${r.steps.map((x) => `${x.step}: ${x.status}`).join(" / ")}`,
     );
     para(
-      "L1 is minimum clearance; L7 covers all classification levels. Administrative privileges do not come from selecting a person in a preview. Physical site admission requires separate approval.",
+      "Viewer is the minimum access group; Admin covers all five access groups. Administrative privileges do not come from selecting a person in a preview. Physical site admission requires separate approval.",
     );
     heading("05 / DETECT - Alert register");
     para(
@@ -185,7 +186,7 @@ export function reportPDF(report) {
     rows(
       report.alerts,
       (r) =>
-        `[${r.severity.toUpperCase()}] ${r.id} | ${r.title} | L${r.required_level}\n${r.content} Status: ${r.status}. Updated: ${r.updated_at}.`,
+        `[${r.severity.toUpperCase()}] ${r.id} | ${r.title} | ${accessName(r.required_level)}\n${r.content} Status: ${r.status}. Updated: ${r.updated_at}.`,
     );
     heading("06 / RESPOND - Incident register");
     rows(
@@ -226,7 +227,7 @@ export function reportPDF(report) {
             ),
         ),
         (r) =>
-          `[${r.kind} / L${r.required_level}] ${r.id} | ${r.title} | ${r.site}\n${r.detail}`,
+          `[${r.kind} / ${accessName(r.required_level)}] ${r.id} | ${r.title} | ${r.site}\n${r.detail}`,
       );
     } else {
       heading("09 / Inventory appendix");
@@ -244,7 +245,7 @@ export function reportPDF(report) {
         .fontSize(8)
         .fillColor("#64748b")
         .text(
-          `INTELLIPATH | DEMO | L1-L${s.level} | ${w.day}                         ${i + 1} / ${pages.count}`,
+          `INTELLIPATH | DEMO | ${accessName(s.level)} | ${w.day}                         ${i + 1} / ${pages.count}`,
           42,
           802,
           { lineBreak: false },

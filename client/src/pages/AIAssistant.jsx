@@ -4,7 +4,6 @@ import { api } from "../api.js";
 import { useAuth } from "../auth.jsx";
 import { useApi } from "../hooks.js";
 import { GlassCard, SectionTitle, fieldCls } from "../components/ui.jsx";
-import SiteMap from "../components/SiteMap.jsx";
 
 const QUICK = [
   "Summarize incidents and prioritize remediation",
@@ -68,7 +67,7 @@ export default function AIAssistant() {
                 {status.data?.provider === "groq"
                   ? "Groq · grounded answers"
                   : "Local retrieval"}{" "}
-                · L1–L{user.cyber_level}
+                · {user.roleLabel} access
               </p>
             </div>
             <button
@@ -184,7 +183,6 @@ export default function AIAssistant() {
           </div>
         </GlassCard>
       </div>
-      <SiteMap />
     </div>
   );
 }
