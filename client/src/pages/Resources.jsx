@@ -303,33 +303,34 @@ export default function Resources() {
         </div>
       )}
 
-      <GlassCard className="p-6 mb-6">
-        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5">
-          <div>
+      <GlassCard className="access-roles-panel mb-6">
+        <div className="access-roles-heading">
+          <div className="min-w-0">
             <h2 className="font-display font-semibold text-slate-900">
               Access roles
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Your access role is {accessName(account.cyber_level)}. Admin has the broadest access, followed by Manager, Analysis, Engineer and Viewer. Records assigned to your role and lower access groups are visible across search, AI, reports and exports.
+              Your role includes its own records and all lower access groups.
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          <span className="access-current-role">{accessName(account.cyber_level)} access</span>
+        </div>
+          <div className="access-role-grid" aria-label="Access roles from highest to lowest">
             {(rules.data?.rules || []).map((rule) => (
               <div
                 key={rule.level}
                 title={rule.scope}
-                className={`p-3 rounded-xl glass-soft text-center ${rule.level > account.cyber_level ? "opacity-35" : "border-cyan-400/30"}`}
+                className={`access-role-card ${rule.level > account.cyber_level ? "is-restricted" : "is-visible"} ${rule.level === account.cyber_level ? "is-current" : ""}`}
               >
-                <p className="font-display font-bold text-slate-900">
+                <p className="access-role-name">
                   {accessName(rule.level)}
                 </p>
-                <p className="text-[10px] text-slate-500 mt-1">
+                <p className="access-role-status">
                   {rule.level <= account.cyber_level ? "Visible" : "Restricted"}
                 </p>
               </div>
             ))}
           </div>
-        </div>
       </GlassCard>
 
       <GlassCard className="overflow-hidden">

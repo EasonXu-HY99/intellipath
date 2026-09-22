@@ -1,5 +1,6 @@
 import { accessName } from "../../../shared/access.js";
 import OceanFleet from "../components/OceanFleet.jsx";
+import PathBackdrop from "../components/PathBackdrop.jsx";
 import { useEffect, useRef, useState } from "react";
 import {
   Search,
@@ -134,7 +135,7 @@ export default function ResourceWorkspace({ uploadOpen = false, onUploadClose })
           </div>}
         </div>
       </section>
-      {hasSearched && <div className="voyage-content">
+      {hasSearched && <div className="path-results"><PathBackdrop /><div className="voyage-content">
       <div className="workspace-toolbar">
         <div className="type-tabs" aria-label="Resource types">
           {TYPES.map(([kind, label, Icon]) => (
@@ -407,7 +408,7 @@ export default function ResourceWorkspace({ uploadOpen = false, onUploadClose })
           </div>
         </aside>
       </div>
-      </div>}
+      </div></div>}
       {(showUpload || uploadOpen) && (
         <FileUpload
           sites={sites.data?.sites || []}

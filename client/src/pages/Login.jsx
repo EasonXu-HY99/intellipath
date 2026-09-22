@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PathBackdrop from "../components/PathBackdrop.jsx";
 import { LogIn, ShieldCheck, User, Lock } from "lucide-react";
 import { useAuth } from "../auth.jsx";
 
@@ -44,6 +45,7 @@ export default function Login() {
         <div className="harbor-story-footer"><span>IntelliPath / Maritime workspace</span><span>Concept shipyard imagery</span></div>
       </section>
       <section className="harbor-form-panel">
+        <PathBackdrop />
         <div className="harbor-product"><span className="harbor-monogram">ip</span><span>IntelliPath</span></div>
         <div className="harbor-form-content">
           <h2>Welcome aboard.</h2>

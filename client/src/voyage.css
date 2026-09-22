@@ -1,5 +1,30 @@
 /* Maritime palette: abyss #052c40, sea #086276, foam #e7f5f3,
    signal #0876b9, ink #16374b. The ocean is the single focal point. */
+.path-workspace,.path-results,.harbor-form-panel { position:relative; isolation:isolate; }
+.path-backdrop { position:absolute; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(ellipse at 95% 15%,#cceaf440,transparent 50%),url('/images/intellipath-routes.svg') right top / 1200px 1000px repeat-y; }
+.path-workspace { background:#f4f8fb; }
+.path-results { background:#f4f8fb; }
+.path-results .voyage-content { position:relative; }
+.harbor-form-panel .path-backdrop { opacity:.45; background-position:center top; }
+.access-roles-panel { padding:24px; }
+.access-roles-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+.access-roles-heading p { max-width:540px; line-height:1.6; }
+.access-current-role { flex-shrink:0; border:1px solid #c7e0ed; border-radius:20px; padding:6px 12px; font-size:11px; color:#17618b; background:#f1f8fc; }
+.access-role-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; }
+.access-role-card { min-width:0; padding:18px 10px 15px; border:1px solid #dce7ee; border-radius:12px; text-align:center; background:#f7fafc; position:relative; }
+.access-role-card::before { content:''; display:block; width:7px; height:7px; border-radius:50%; background:#58a1c5; margin:0 auto 10px; box-shadow:0 0 0 4px #dfedf5; }
+.access-role-card.is-current { border-color:#7db5d1; background:#edf6fb; }
+.access-role-card.is-restricted { background:#fafbfc; border-style:dashed; }
+.access-role-card.is-restricted::before { background:#a3b1ba; box-shadow:0 0 0 4px #edf0f2; }
+.access-role-name { font-weight:600; font-size:15px; line-height:1.4; color:#234a64; overflow-wrap:anywhere; }
+.access-role-status { font-size:11px; line-height:1.5; color:#627b8b; margin-top:5px; }
+@media (max-width:640px) {
+ .access-roles-panel { padding:18px; }
+ .access-roles-heading { flex-direction:column; gap:10px; }
+ .access-role-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+ .access-role-card:last-child { grid-column:1 / -1; }
+ .path-backdrop { background-size:850px 900px; }
+}
 .ocean-shell { min-height:100svh; background:#f3f7fa; color:#16374b; }
 .ocean-header { position:absolute; z-index:20; top:0; left:0; right:0; height:104px; display:flex; align-items:center; justify-content:space-between; padding:0 4.5vw; color:#fff; }
 .ocean-wordmark { display:flex; align-items:center; gap:26px; text-decoration:none; color:#fff; }
