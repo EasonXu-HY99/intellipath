@@ -12,9 +12,9 @@ Migration 3 runs once in a transaction. Old record ranks map `1 -> 1`, `2/3/4 ->
 
 ## Photographic direction
 
-The rear helicopter perspective follows civilian ships toward a rising sun. The five-ship scene has a large central vessel and two progressively smaller pairs. Separate variants remove ships without cropping the remaining fleet. Static images preserve realistic hulls, wakes and light; there is no procedural ship model, video, animation library or paid runtime service. Mobile layouts preserve the full fleet above the search bar.
+The rear helicopter perspective follows civilian ships toward a rising sun. The five-ship scene has a large central vessel and two progressively smaller pairs. Odd-count variants retain a central vessel. Engineer uses two equal ships, one on each side; Manager uses four ships, two on each side, with smaller outer ships. All compositions are balanced around the central sunrise. Static images preserve realistic hulls, wakes and light; there is no procedural ship model, video, animation library or paid runtime service. Mobile layouts preserve the full fleet above the search bar.
 
-`client/public/images/shipyard-dawn.png` and `fleet-1.png` through `fleet-5.png` were generated for this interface. They are labeled concept imagery, not documentary images of Seatrium vessels, facilities or staff. Assets are served locally. See [brand provenance](BRAND-ASSETS.md) for logos.
+`client/public/images/shipyard-dawn.png` and `fleet-1.png`, `fleet-2-symmetric.png`, `fleet-3.png`, `fleet-4-symmetric.png` and `fleet-5.png` were generated for this interface. They are labeled concept imagery, not documentary images of Seatrium vessels, facilities or staff. Assets are served locally. See [brand provenance](BRAND-ASSETS.md) for logos.
 
 ## People, locations and page names
 
@@ -29,3 +29,18 @@ Site maps were removed from AI Assistant. Command Center is now Cybersecurity Ce
 - Figma: discovered through the plugin directory; no external design account is required for this existing React project.
 
 Verification covers 22 API/migration tests, a production build, desktop/mobile login and search, role-based fleet variants, indoor/outdoor personnel views, named access labels and the navigation upload entry. Microsoft sources and OneDrive remain explicit demos.
+
+## IntelliPath continuity theme
+
+A shared decorative backdrop uses pale blue routes, a dashed centerline and connected waypoints. It appears behind every operational page, search results and the login form; the full-screen ocean landing stays photographic. The SVG is local, static, hidden from assistive technology and ignores pointer events. Opaque white cards protect data readability.
+
+Access Roles uses a short explanation above a full-width five-column grid. Mobile layouts use two columns and a full-width last card. Each card has a readable role name and Visible/Restricted state, with a separate current-account badge. Long descriptions no longer compete for horizontal space. Access enforcement is unchanged.
+
+### Symmetric fleet edit prompts (built-in imagegen)
+
+Source: `client/public/images/fleet-5.png`.
+
+- Four-ship output: `client/public/images/fleet-4-symmetric.png`. Prompt: Remove only the large central ship and its wake; replace them with natural ocean and sunrise reflections. Preserve the other four ships in their positions, two on each side, equally sized inner pair and smaller outer pair. Keep camera, dimensions, horizon, sky, lighting and realistic remaining wakes. Exactly four ships, no central or distant extra boats, no text.
+- Two-ship output: `client/public/images/fleet-2-symmetric.png`. Prompt: Remove the central ship and the far-left and far-right ships and their wakes. Keep only the matching medium ships at approximately one-third and two-thirds image width, equal scale and height, symmetric around the sun, travelling away from the camera. Preserve original camera, dimensions, horizon, sky, golden light and ocean. Exactly two ships, no extra boats or text.
+
+The selected outputs were visually inspected before integration. Desktop and 390px checks verify role card containment, the path backdrop and authenticated fleet selection. New filenames prevent browsers from reusing the earlier asymmetric images.

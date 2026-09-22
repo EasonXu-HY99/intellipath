@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import PathBackdrop from "./components/PathBackdrop.jsx";
 import {
   LayoutDashboard,
   Bot,
@@ -288,7 +289,8 @@ export default function App() {
           </div>
         </aside>
 
-        <main className="flex-1 min-w-0 flex flex-col">
+        <main className="path-workspace flex-1 min-w-0 flex flex-col">
+          <PathBackdrop />
           <header className="glass rounded-none border-x-0 border-t-0 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 sticky top-0 z-30">
             <div>
               <p className="text-[11px] text-slate-600 uppercase tracking-wider">
