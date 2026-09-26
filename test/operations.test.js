@@ -466,6 +466,28 @@ test("clearance changes revoke sessions and cannot be self-escalated", async () 
   const changed=db.prepare("SELECT role,cyber_level FROM users WHERE id=?").get(viewer.user.id);
   assert.equal(changed.role,"engineer"); assert.equal(changed.cyber_level,2);
 });
+test("permission questions use verified English role names even with Groq configured", async () => {
+  const previousKey = process.env.GROQ_API_KEY;
+  process.env.GROQ_API_KEY = "test-only-not-a-real-key";
+  let calls = 0;
+  try {
+    const result = await answer(db, admin.user, {
+      prompt: "请解释我的权限等级和可查看的记录。",
+    }, "verified-permissions", async () => {
+      calls++;
+      throw new Error("Permission facts must not depend on generated claims");
+    });
+    assert.equal(calls, 0);
+    assert.match(result.reply, /Your account clearance is Admin/);
+    assert.doesNotMatch(result.reply, /[\u4e00-\u9fff]|L[1-7]|clearance [1-7]/);
+    assert.match(result.notice, /verified/);
+    assert.equal(result.provider, "local");
+  } finally {
+    if (previousKey === undefined) delete process.env.GROQ_API_KEY;
+    else process.env.GROQ_API_KEY = previousKey;
+  }
+});
+
 test("Groq receives scoped evidence and server-owned history; failure falls back", async () => {
   process.env.GROQ_API_KEY = "test-only-not-a-real-key";
   let payload;

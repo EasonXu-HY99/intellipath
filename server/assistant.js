@@ -125,10 +125,11 @@ export async function answer(db, user, body, sessionToken, fetcher = fetch) {
           allowed: person.cyber_level >= asset.required_level,
         }
       : null;
+  const permissionQuestion = Boolean(accessCheck) || /level|clearance|access|permission|权限|等级/i.test(q);
   let reply;
   if (accessCheck)
     reply = `${accessCheck.person} has ${accessName(accessCheck.userLevel)} clearance. ${accessCheck.resource} requires ${accessName(accessCheck.requiredLevel)}: ${accessCheck.allowed ? "allowed by classification" : "denied by classification"}. This is a record-access check, not physical admission or final operational approval.`;
-  else if (/level|clearance|access|权限|等级/i.test(q))
+  else if (permissionQuestion)
     reply = `Your account clearance is ${accessName(s.level)}. You may read records assigned to ${accessName(s.level)} and lower access groups. Your role (${user.role}) separately controls actions. Selecting another person never increases your access. ${s.resources.length} resources and ${s.people.length} people are visible. Higher-level records are not disclosed.`;
   else if (/summary|summari[sz]|overview|daily|report|总结|日报|概况/i.test(q))
     reply = `Visible operational summary (${accessName(s.level)}):\n${s.resources.length} resources; ${m.headline.activeResources} active.\n${s.people.length} personnel records; ${s.requests.length} permission requests.\n${m.security.incidents.length} open incidents; ${m.security.alerts.length} alerts at the configured threshold.\n${m.security.remediation.filter((r) => r.status !== "verified").length} remediation actions awaiting verification.\nDownload the cybersecurity PDF from Cybersecurity Center for the reporting window and full authorized appendix. Demo records are simulated, not live telemetry.`;
@@ -146,11 +147,12 @@ export async function answer(db, user, body, sessionToken, fetcher = fetch) {
     notice = assistantStatus(db).configured
       ? "Local retrieval mode."
       : "Groq is not configured; using local retrieval.";
-  if (config.aiMode === "auto" && process.env.GROQ_API_KEY) {
+  if (permissionQuestion) notice = "Access details verified against your account and record classification.";
+  if (!permissionQuestion && config.aiMode === "auto" && process.env.GROQ_API_KEY) {
     try {
       const context = {
         accessCheck,
-        clearance: s.level,
+        clearance: accessName(s.level),
         counts: {
           resources: s.resources.length,
           people: s.people.length,
@@ -162,7 +164,7 @@ export async function answer(db, user, body, sessionToken, fetcher = fetch) {
           kind: r.kind,
           title: r.title,
           site: r.site,
-          level: r.required_level,
+          accessRole: accessName(r.required_level),
           status: r.status,
           owner: r.owner,
           due: r.due_at,
